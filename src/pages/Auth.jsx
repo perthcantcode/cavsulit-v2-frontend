@@ -18,7 +18,7 @@ function GoogleIcon() {
 function AuthLayout({ title, sub, children }) {
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex flex-col justify-between w-96 bg-gradient-to-br from-[#052e16] to-[#064e3b] p-10 text-white flex-shrink-0">
+      <div className="hidden lg:flex flex-col justify-between w-96 [background:var(--primary)] p-10 [color:var(--text)] flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center">
             <ShoppingBag size={18}/>
@@ -29,20 +29,20 @@ function AuthLayout({ title, sub, children }) {
           <div className="text-3xl font-display font-bold leading-tight mb-4">
             "Your hustle deserves to be seen."
           </div>
-          <p className="text-white/70 text-sm leading-relaxed">
+          <p className="[color:rgba(255,255,255,0.7)] text-sm leading-relaxed">
             CavSulit is a free campus marketplace for students, instructors, and every member of the CvSU community.
           </p>
         </div>
-        <div className="text-white/40 text-xs">© 2026 CavSulit · ITEC Group 3</div>
+        <div className="[color:rgba(255,255,255,0.4)] text-xs">© 2026 CavSulit · ITEC Group 3</div>
       </div>
-      <div className="flex-1 flex items-center justify-center p-6 bg-cav-bg">
+      <div className="flex-1 flex items-center justify-center p-6 [background:var(--bg)]">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-xl bg-cav-green flex items-center justify-center"><ShoppingBag size={16} className="text-white"/></div>
-            <span className="font-display font-bold text-cav-green-dark">CavSulit</span>
+            <div className="w-8 h-8 rounded-xl [background:var(--primary)] flex items-center justify-center"><ShoppingBag size={16} className="[color:var(--text)]"/></div>
+            <span className="font-display font-bold [color:var(--primary)]">CavSulit</span>
           </div>
-          <h1 className="font-display font-bold text-2xl text-white mb-1">{title}</h1>
-          <p className="text-sm text-white/55 mb-8">{sub}</p>
+          <h1 className="font-bold text-2xl mb-1" style={{ color: "var(--text)" }} className="">{title}</h1>
+          <p className="text-sm [color:var(--text-muted)] mb-8">{sub}</p>
           {children}
         </div>
       </div>
@@ -117,7 +117,7 @@ export function Login() {
         <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-4">
           {error}
           {showResend && (
-            <button onClick={handleResend} className="block mt-2 text-cav-green font-semibold underline text-xs">
+            <button onClick={handleResend} className="block mt-2 [color:var(--accent)] font-semibold underline text-xs">
               Resend verification email
             </button>
           )}
@@ -143,12 +143,12 @@ export function Login() {
 
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="block text-xs font-bold text-cav-green-dark mb-1">Email</label>
+          <label className="block text-xs font-bold [color:var(--primary)] mb-1">Email</label>
           <input value={form.email} onChange={e => setForm({...form, email: e.target.value})}
             type="email" required placeholder="your@email.com" className="input"/>
         </div>
         <div>
-          <label className="block text-xs font-bold text-cav-green-dark mb-1">Password</label>
+          <label className="block text-xs font-bold [color:var(--primary)] mb-1">Password</label>
           <div className="relative">
             <input value={form.password} onChange={e => setForm({...form, password: e.target.value})}
               type={showPw ? 'text' : 'password'} required placeholder="••••••••" className="input pr-10"/>
@@ -163,10 +163,10 @@ export function Login() {
       </form>
       <p className="text-sm text-center mt-4 text-cav-text-muted">
         Didn't receive verification email?{' '}
-        <button onClick={handleResend} className="text-cav-green font-semibold hover:underline">Resend it</button>
+        <button onClick={handleResend} className="[color:var(--accent)] font-semibold hover:underline">Resend it</button>
       </p>
       <p className="text-sm text-center mt-2 text-cav-text-muted">
-        Don't have an account? <Link to="/register" className="text-cav-green font-semibold hover:underline">Sign Up</Link>
+        Don't have an account? <Link to="/register" className="[color:var(--accent)] font-semibold hover:underline">Sign Up</Link>
       </p>
     </AuthLayout>
   );
@@ -213,7 +213,7 @@ export function Register() {
   if (verificationSent) {
     return (
       <AuthLayout title="Check your email" sub="One more step to verify your CvSU account">
-        <div className="bg-cav-green-accent/15 border border-cav-green-accent/30 text-cav-green text-sm rounded-xl px-4 py-4 mb-4">
+        <div className="[background:rgba(64,145,108,0.08)] border [border-color:var(--border)] [color:var(--accent)] text-sm rounded-xl px-4 py-4 mb-4">
           <p className="font-bold mb-1">📧 Verification email sent!</p>
           <p>We sent a verification link to <strong>{form.email}</strong>. Check your <strong>spam folder</strong> too!</p>
         </div>
@@ -231,7 +231,7 @@ export function Register() {
   return (
     <AuthLayout title="Create account" sub="Join the CavSulit campus community">
       {isCvsu && form.studentId && (
-        <div className="bg-cav-green-accent/15 border border-cav-green-accent/30 text-cav-green text-xs rounded-xl px-4 py-3 mb-4 font-semibold">
+        <div className="[background:rgba(64,145,108,0.08)] border [border-color:var(--border)] [color:var(--accent)] text-xs rounded-xl px-4 py-3 mb-4 font-semibold">
           ✅ CvSU email detected — verify your email to get the CvSU Verified badge!
         </div>
       )}
@@ -239,17 +239,17 @@ export function Register() {
       <form onSubmit={submit} className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Full Name *</label>
+            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Full Name *</label>
             <input value={form.fullName} onChange={e => setForm({...form, fullName: e.target.value})}
               required placeholder="Juan dela Cruz" className="input"/>
           </div>
           <div className="col-span-2">
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Email *</label>
+            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Email *</label>
             <input value={form.email} onChange={e => setForm({...form, email: e.target.value})}
               type="email" required placeholder="Use @cvsu.edu.ph for verification" className="input"/>
           </div>
           <div className="col-span-2">
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Password *</label>
+            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Password *</label>
             <div className="relative">
               <input value={form.password} onChange={e => setForm({...form, password: e.target.value})}
                 type={showPw ? 'text' : 'password'} required placeholder="Min. 6 characters" className="input pr-10"/>
@@ -259,18 +259,18 @@ export function Register() {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Student ID</label>
+            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Student ID</label>
             <input value={form.studentId} onChange={e => setForm({...form, studentId: e.target.value})}
               placeholder="251XXXXXX" className="input"/>
           </div>
           <div>
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Department</label>
+            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Department</label>
             <select value={form.department} onChange={e => setForm({...form, department: e.target.value})} className="input">
               {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
           <div className="col-span-2">
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Contact Number</label>
+            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Contact Number</label>
             <input value={form.contactNumber} onChange={e => setForm({...form, contactNumber: e.target.value})}
               placeholder="09XX XXX XXXX" className="input"/>
           </div>
@@ -280,7 +280,7 @@ export function Register() {
         </button>
       </form>
       <p className="text-sm text-center mt-6 text-cav-text-muted">
-        Already have an account? <Link to="/login" className="text-cav-green font-semibold hover:underline">Sign In</Link>
+        Already have an account? <Link to="/login" className="[color:var(--accent)] font-semibold hover:underline">Sign In</Link>
       </p>
     </AuthLayout>
   );

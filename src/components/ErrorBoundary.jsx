@@ -17,9 +17,9 @@ export class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#052e16] flex flex-col items-center justify-center px-6 text-center">
-          <h1 className="text-3xl font-bold text-white mb-3">Something went wrong</h1>
-          <p className="text-white/55 mb-6 max-w-md">
+        <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center" style={{ background: 'var(--bg)' }}>
+          <h1 className="text-3xl font-bold mb-3" style={{ color: 'var(--text)' }}>Something went wrong</h1>
+          <p className="mb-6 max-w-md" style={{ color: 'var(--text-muted)' }}>
             The server might be waking up. Try again in a moment.
           </p>
           <button
@@ -30,7 +30,7 @@ export class ErrorBoundary extends React.Component {
             Retry
           </button>
           {this.state.error && (
-            <pre className="text-xs text-white/40 bg-white/5 border border-white/10 rounded-xl p-4 max-w-lg overflow-auto text-left">
+            <pre className="text-xs rounded-xl p-4 max-w-lg overflow-auto text-left" style={{ color: 'var(--text-muted)', background: 'var(--bg-alt)', border: '1px solid var(--border)' }}>
               {this.state.error.message}
             </pre>
           )}

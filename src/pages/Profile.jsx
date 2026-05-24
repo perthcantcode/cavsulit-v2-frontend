@@ -92,13 +92,13 @@ export function Profile() {
             <div className="w-20 h-20 rounded-2xl overflow-hidden bg-cav-green flex items-center justify-center">
               {user.profilePhoto
                 ? <img src={user.profilePhoto} alt={user.fullName} className="w-full h-full object-cover"/>
-                : <span className="text-white font-bold text-3xl">{user.fullName?.[0] || 'U'}</span>
+                : <span className="[color:var(--text)] font-bold text-3xl">{user.fullName?.[0] || 'U'}</span>
               }
             </div>
             <button
               onClick={() => fileRef.current?.click()}
               disabled={uploadingPhoto}
-              className="absolute -bottom-1 -right-1 w-7 h-7 bg-cav-green text-white rounded-full flex items-center justify-center shadow-md hover:bg-cav-green-dark transition-colors">
+              className="absolute -bottom-1 -right-1 w-7 h-7 bg-cav-green [color:var(--text)] rounded-full flex items-center justify-center shadow-md hover:bg-cav-green-dark transition-colors">
               {uploadingPhoto
                 ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"/>
                 : <Camera size={13}/>

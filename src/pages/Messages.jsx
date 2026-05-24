@@ -125,7 +125,7 @@ export function Messages() {
   if (!user) return (
     <div className="page-container text-center py-20">
       <div className="text-5xl mb-4">💬</div>
-      <h2 className="font-bold text-xl text-white mb-2">Login to view messages</h2>
+      <h2 className="font-bold text-xl [color:var(--text)] mb-2">Login to view messages</h2>
       <Link to="/login" className="btn-primary mt-4">Login</Link>
     </div>
   );
@@ -137,7 +137,7 @@ export function Messages() {
         {/* Sidebar */}
         <div className={`${activePartner ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-72 border-r border-white/10 bg-white/5`}>
           <div className="p-4 border-b border-white/10">
-            <h2 className="font-bold text-lg text-white">Messages</h2>
+            <h2 className="font-bold text-lg [color:var(--text)]">Messages</h2>
           </div>
           <div className="flex-1 overflow-y-auto">
             {loading ? (
@@ -152,7 +152,7 @@ export function Messages() {
               <button key={i} onClick={() => openConversation(c.partner, c.shopId || '')}
                 className={`w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors text-left border-b border-gray-50
                   ${activePartner?.id === c.partner?.id ? 'bg-cav-green-accent/10 border-l-2 border-l-cav-green' : ''}`}>
-                <div className="w-10 h-10 rounded-full bg-cav-green flex items-center justify-center text-white font-bold flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-cav-green flex items-center justify-center [color:var(--text)] font-bold flex-shrink-0">
                   {c.partner?.fullName?.[0] || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -177,7 +177,7 @@ export function Messages() {
               <div className="glass border-b border-white/10 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button onClick={() => setActivePartner(null)} className="md:hidden btn-ghost p-1">←</button>
-                  <div className="w-8 h-8 rounded-full bg-cav-green flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-8 h-8 rounded-full bg-cav-green flex items-center justify-center [color:var(--text)] text-sm font-bold">
                     {activePartner.fullName?.[0] || '?'}
                   </div>
                   <div>
@@ -197,7 +197,7 @@ export function Messages() {
                   return (
                     <div key={i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap
-                        ${isMe ? 'bg-cav-primary text-white rounded-br-sm' : 'bg-white/10 text-white rounded-bl-sm border border-white/15'}`}>
+                        ${isMe ? 'bg-cav-primary [color:var(--text)] rounded-br-sm' : 'bg-white/10 [color:var(--text)] rounded-bl-sm border border-white/15'}`}>
                         {m.text}
                       </div>
                     </div>

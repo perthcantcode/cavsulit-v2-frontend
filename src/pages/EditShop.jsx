@@ -196,7 +196,7 @@ export function EditShop() {
               <div key={`ex-${i}`} className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
                 <img src={url} alt="" className="w-full h-full object-cover"/>
                 <button type="button" onClick={() => removeExisting(i)}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center [color:var(--text)] text-xs">
                   <X size={10}/>
                 </button>
               </div>
@@ -206,10 +206,10 @@ export function EditShop() {
               <div key={`new-${i}`} className="relative w-24 h-24 rounded-xl overflow-hidden border border-cav-green/40">
                 <img src={src} alt="" className="w-full h-full object-cover"/>
                 <button type="button" onClick={() => removeNew(i)}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center [color:var(--text)] text-xs">
                   <X size={10}/>
                 </button>
-                <div className="absolute bottom-0 left-0 right-0 bg-cav-green/80 text-white text-[9px] text-center py-0.5">New</div>
+                <div className="absolute bottom-0 left-0 right-0 bg-cav-green/80 [color:var(--text)] text-[9px] text-center py-0.5">New</div>
               </div>
             ))}
             {totalPhotos < 5 && (

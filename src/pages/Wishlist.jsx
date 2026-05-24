@@ -67,7 +67,7 @@ export function Wishlist() {
                     <Heart size={14} className="text-red-500 fill-red-500"/>
                   </button>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-2 py-1.5">
-                    <div className="text-white text-[9px] font-semibold flex items-center gap-1">
+                    <div className="[color:var(--text)] text-[9px] font-semibold flex items-center gap-1">
                       <MapPin size={9}/>{shop?.college}
                     </div>
                   </div>

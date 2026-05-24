@@ -23,13 +23,13 @@ function ImageCarousel({ imgs, shopName, category }) {
       <img src={imgs[idx]} alt={shopName + ' photo ' + (idx+1)} className="w-full h-full object-cover transition-opacity duration-300"/>
       {imgs.length > 1 && (
         <>
-          <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100">
+          <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center [color:var(--text)] transition-all opacity-0 group-hover:opacity-100">
             <ChevronLeft size={20}/>
           </button>
-          <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100">
+          <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center [color:var(--text)] transition-all opacity-0 group-hover:opacity-100">
             <ChevronRight size={20}/>
           </button>
-          <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">{idx+1} / {imgs.length}</div>
+          <div className="absolute top-3 right-3 bg-black/50 [color:var(--text)] text-xs px-2 py-1 rounded-full">{idx+1} / {imgs.length}</div>
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent pt-8 pb-2 px-3 flex gap-2 justify-center">
             {imgs.map((src, i) => (
               <button key={i} onClick={() => setIdx(i)} className={'w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ' + (i === idx ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100')}>
@@ -114,7 +114,7 @@ export function ShopDetails() {
   };
 
   if (loading) return <div className="page-container"><div className="h-96 bg-white/5 rounded-2xl animate-pulse"/></div>;
-  if (!shop)   return <div className="page-container text-center py-20 text-white/50">Shop not found.</div>;
+  if (!shop)   return <div className="page-container text-center py-20 [color:var(--text)]/50">Shop not found.</div>;
 
   const badge = badgeLabel(shop.seller?.badgeLevel);
   const imgs  = shop.photos?.map(p => photoUrl(p)).filter(Boolean);
@@ -187,7 +187,7 @@ export function ShopDetails() {
                 : shop.reviews.map(r => (
                   <div key={r.id} className="card p-4">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-cav-green flex items-center justify-center text-white text-xs font-bold">
+                      <div className="w-8 h-8 rounded-full bg-cav-green flex items-center justify-center [color:var(--text)] text-xs font-bold">
                         {r.reviewer?.fullName?.[0] || '?'}
                       </div>
                       <div>
@@ -242,9 +242,9 @@ export function ShopDetails() {
         <div className="space-y-4">
           <div className="card p-5">
             <div className="flex items-start justify-between gap-2 mb-3">
-              <h1 className="font-bold text-xl text-white">{shop.name}</h1>
+              <h1 className="font-bold text-xl [color:var(--text)]">{shop.name}</h1>
               <button onClick={toggleSave} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:border-red-300 transition-colors flex-shrink-0">
-                <Heart size={16} className={saved ? 'text-cav-accent fill-cav-accent' : 'text-white/40'}/>
+                <Heart size={16} className={saved ? 'text-cav-accent fill-cav-accent' : '[color:var(--text)]/40'}/>
               </button>
             </div>
             {badge && <div className="mb-2"><span className={badge.cls}>{badge.label}</span></div>}
@@ -274,7 +274,7 @@ export function ShopDetails() {
             <div className="card p-5">
               <div className="font-display font-bold text-sm text-cav-green-dark mb-3">Seller</div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-cav-green flex items-center justify-center text-white font-bold">{shop.seller.fullName?.[0] || 'S'}</div>
+                <div className="w-10 h-10 rounded-full bg-cav-green flex items-center justify-center [color:var(--text)] font-bold">{shop.seller.fullName?.[0] || 'S'}</div>
                 <div>
                   <div className="font-semibold text-sm">{shop.seller.fullName}</div>
                   <div className="text-xs text-cav-text-muted">{shop.seller.department}</div>

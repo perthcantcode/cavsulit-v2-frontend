@@ -27,14 +27,14 @@ export function VerifiedBadge() {
       </div>
 
       {user && (
-        <div className="card p-5 mb-8 bg-gradient-to-r from-cav-green-dark to-cav-green text-white">
+        <div className="card p-5 mb-8 bg-gradient-to-r from-cav-green-dark to-cav-green [color:var(--text)]">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
               {user.fullName?.[0] || 'U'}
             </div>
             <div>
               <div className="font-display font-bold text-lg">{user.fullName}</div>
-              <div className="text-white/70 text-sm">{user.department} · {user.email}</div>
+              <div className="[color:var(--text)]/70 text-sm">{user.department} · {user.email}</div>
               <div className="mt-2">
                 {currentLevel === 'none'
                   ? <span className="text-xs bg-white/20 px-3 py-1 rounded-full">No badge yet</span>
@@ -75,7 +75,7 @@ export function VerifiedBadge() {
                     {lvl.criteria.map((c, ci) => (
                       <div key={ci} className="flex items-center gap-2 text-xs">
                         <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0
-                          ${isCurrentOrAbove ? 'bg-cav-green text-white' : 'bg-gray-200 text-gray-400'}`}>
+                          ${isCurrentOrAbove ? 'bg-cav-green [color:var(--text)]' : 'bg-gray-200 text-gray-400'}`}>
                           {isCurrentOrAbove ? '✓' : '○'}
                         </div>
                         <span className={isCurrentOrAbove ? 'text-cav-green-dark' : 'text-gray-400'}>{c}</span>

@@ -60,12 +60,12 @@ export function Browse() {
       <div className="sticky top-16 z-40 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 mb-6 glass backdrop-blur-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="font-bold text-2xl text-white">Browse Shops</h1>
-            <p className="text-sm text-white/50 mt-0.5">{total} shop{total !== 1 ? 's' : ''} found</p>
+            <h1 className="font-bold text-2xl [color:var(--text)]">Browse Shops</h1>
+            <p className="text-sm [color:var(--text-muted)] mt-0.5">{total} shop{total !== 1 ? 's' : ''} found</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative flex-1 sm:flex-none">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40"/>
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 [color:var(--text-light)]"/>
               <input
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
@@ -81,14 +81,14 @@ export function Browse() {
         </div>
       </div>
 
-      <div className="flex gap-1 bg-white/5 rounded-xl p-1 w-fit mb-4 border border-white/10">
+      <div className="flex gap-1 [background:var(--bg-alt)] rounded-xl p-1 w-fit mb-4 border [border-color:var(--border)]">
         {['product', 'college'].map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-350
-              ${tab === t ? 'bg-cav-primary text-white' : 'text-white/60 hover:text-white'}`}
+              ${tab === t ? '[background:var(--primary)] text-white' : '[color:var(--text-muted)] hover:[color:var(--text)]'}`}
           >
             By {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
@@ -116,14 +116,14 @@ export function Browse() {
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-56 rounded-2xl bg-white/5 animate-pulse border border-white/10" />
+            <div key={i} className="h-56 rounded-2xl [background:var(--bg-alt)] animate-pulse border [border-color:var(--border)]" />
           ))}
         </div>
       ) : shops.length === 0 ? (
         <div className="text-center py-20 card">
           <div className="text-5xl mb-4">🔍</div>
-          <div className="font-semibold text-white">No shops found</div>
-          <div className="text-sm mt-1 text-white/50">Try a different filter or search term</div>
+          <div className="font-semibold [color:var(--text)]">No shops found</div>
+          <div className="text-sm mt-1 [color:var(--text-muted)]">Try a different filter or search term</div>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -137,7 +137,7 @@ export function Browse() {
         <div className="flex items-center justify-center gap-2 mt-8">
           <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
             className="btn-secondary disabled:opacity-40">← Prev</button>
-          <span className="text-sm text-white/50 px-4">Page {page} of {Math.ceil(total / LIMIT)}</span>
+          <span className="text-sm [color:var(--text-muted)] px-4">Page {page} of {Math.ceil(total / LIMIT)}</span>
           <button type="button" onClick={() => setPage((p) => p + 1)} disabled={page >= Math.ceil(total / LIMIT)}
             className="btn-secondary disabled:opacity-40">Next →</button>
         </div>

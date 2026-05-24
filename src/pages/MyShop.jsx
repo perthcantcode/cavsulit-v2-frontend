@@ -17,7 +17,7 @@ function AnalyticsPanel({ shopId }) {
   }, [shopId]);
 
   if (loading) return <div className="h-32 bg-white/5 rounded-xl animate-pulse"/>;
-  if (!data)   return <div className="text-xs text-white/50 p-4">Analytics unavailable</div>;
+  if (!data)   return <div className="text-xs [color:var(--text)]/50 p-4">Analytics unavailable</div>;
 
   const maxViews = Math.max(...(data.weekly?.map(w => parseInt(w.count)) || [1]), 1);
 
@@ -31,21 +31,21 @@ function AnalyticsPanel({ shopId }) {
         ].map((m, i) => (
           <div key={i} className="glass rounded-xl p-3 text-center">
             <div className="text-cav-accent mb-1 flex justify-center">{m.icon}</div>
-            <div className="font-bold text-xl text-white">{m.val}</div>
-            <div className="text-xs text-white/50">{m.label}</div>
+            <div className="font-bold text-xl [color:var(--text)]">{m.val}</div>
+            <div className="text-xs [color:var(--text)]/50">{m.label}</div>
           </div>
         ))}
       </div>
 
       {data.weekly && (
         <div>
-          <div className="text-xs font-bold text-white/80 mb-2">Views — Last 7 Days</div>
+          <div className="text-xs font-bold [color:var(--text)]/80 mb-2">Views — Last 7 Days</div>
           <div className="flex items-end gap-1 h-20">
             {data.weekly.map((w, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full bg-cav-accent rounded-t-sm transition-all"
                   style={{ height: `${(parseInt(w.count, 10) / maxViews) * 100}%`, minHeight: 4 }}/>
-                <div className="text-[9px] text-white/40">{new Date(w.date).toLocaleDateString('en', { weekday: 'short' })}</div>
+                <div className="text-[9px] [color:var(--text)]/40">{new Date(w.date).toLocaleDateString('en', { weekday: 'short' })}</div>
               </div>
             ))}
           </div>
@@ -71,7 +71,7 @@ export function MyShop() {
   if (!user) return (
     <div className="page-container text-center py-20">
       <div className="text-5xl mb-4">🔒</div>
-      <h2 className="font-bold text-xl text-white mb-2">Login Required</h2>
+      <h2 className="font-bold text-xl [color:var(--text)] mb-2">Login Required</h2>
       <Link to="/login" className="btn-primary mt-4">Login</Link>
     </div>
   );
@@ -94,7 +94,7 @@ export function MyShop() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <span className="section-tag">Seller Dashboard</span>
-          <h1 className="font-bold text-2xl text-white">My Shops</h1>
+          <h1 className="font-bold text-2xl [color:var(--text)]">My Shops</h1>
         </div>
         <Link to="/post-shop" className="btn-primary"><Plus size={16}/>New Shop</Link>
       </div>

@@ -2,98 +2,184 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* ── CSS Variables — Light (default) ── */
 :root {
-  --bg: #052e16;
-  --surface: rgba(255, 255, 255, 0.06);
-  --border: rgba(255, 255, 255, 0.12);
-  --primary: #16a34a;
-  --accent: #22c55e;
-  --text: #ffffff;
-  --muted: rgba(255, 255, 255, 0.55);
-  --glass-bg: rgba(255, 255, 255, 0.07);
-  --glass-border: rgba(255, 255, 255, 0.15);
+  --bg:           #FAFAF7;
+  --bg-alt:       #F3F2EE;
+  --surface:      #FFFFFF;
+  --border:       #E5E3DC;
+  --primary:      #1B4332;
+  --primary-mid:  #2D6A4F;
+  --accent:       #40916C;
+  --text:         #1A1A1A;
+  --text-muted:   #6B6B6B;
+  --text-light:   #9A9A9A;
+  --green-glow:   rgba(27, 67, 50, 0.12);
+  --glass-bg:     rgba(255, 255, 255, 0.70);
+  --glass-border: rgba(229, 227, 220, 0.80);
+  --nav-bg:       rgba(250, 250, 247, 0.85);
+  --shadow-card:  0 2px 12px rgba(27, 67, 50, 0.08);
 }
 
-html {
-  scroll-behavior: smooth;
+/* ── CSS Variables — Dark ── */
+.dark {
+  --bg:           #0D1F18;
+  --bg-alt:       #111D17;
+  --surface:      #162920;
+  --border:       #1E3A2E;
+  --primary:      #40916C;
+  --primary-mid:  #52B788;
+  --accent:       #74C69D;
+  --text:         #F0EFE9;
+  --text-muted:   rgba(240, 239, 233, 0.60);
+  --text-light:   rgba(240, 239, 233, 0.35);
+  --green-glow:   rgba(64, 145, 108, 0.18);
+  --glass-bg:     rgba(22, 41, 32, 0.80);
+  --glass-border: rgba(46, 92, 66, 0.50);
+  --nav-bg:       rgba(13, 31, 24, 0.90);
+  --shadow-card:  0 2px 16px rgba(0, 0, 0, 0.30);
 }
+
+html { scroll-behavior: smooth; }
 
 @layer base {
   body {
-    @apply bg-cav-bg text-white font-sans antialiased;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
 @layer components {
+  /* Buttons */
   .btn-primary {
-    @apply bg-cav-primary text-white px-5 py-2.5 rounded-full font-semibold text-sm
-           hover:bg-cav-accent hover:shadow-glow-green transition-all duration-350 ease-smooth
-           inline-flex items-center gap-2;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm
+           bg-[var(--primary)] text-white
+           hover:bg-[var(--primary-mid)] hover:shadow-green-md
+           transition-all duration-300 ease-smooth;
   }
   .btn-secondary {
-    @apply bg-transparent text-white border border-white/30 px-5 py-2.5 rounded-full
-           font-semibold text-sm hover:bg-white/10 transition-all duration-350 ease-smooth
-           inline-flex items-center gap-2;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm
+           bg-transparent border border-[var(--border)]
+           text-[var(--text)] hover:border-[var(--accent)] hover:bg-[var(--bg-alt)]
+           transition-all duration-300 ease-smooth;
   }
   .btn-ghost {
-    @apply text-white/70 hover:text-white hover:bg-white/10
-           px-3 py-2 rounded-lg transition-all duration-350 ease-smooth inline-flex items-center gap-2;
+    @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm
+           text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-alt)]
+           transition-all duration-300 ease-smooth;
   }
+
+  /* Cards */
   .card {
-    @apply backdrop-blur-md bg-white/[0.07] border border-white/15 rounded-2xl
-           hover:border-white/25 transition-all duration-350 ease-smooth;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  .card:hover {
+    box-shadow: 0 8px 32px var(--green-glow);
+  }
+
+  /* Glass — used on navbar, overlays */
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 1rem;
+  }
+
+  /* Inputs */
   .input {
-    @apply w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white
-           focus:outline-none focus:ring-2 focus:ring-cav-accent/40
-           focus:border-cav-accent placeholder:text-white/40 transition-all duration-350 ease-smooth;
+    @apply w-full rounded-xl px-4 py-2.5 text-sm
+           focus:outline-none focus:ring-2 transition-all duration-300;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
   }
+  .input::placeholder { color: var(--text-light); }
+  .input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--green-glow);
+  }
+
+  /* Badges */
   .badge-cvsu {
-    @apply inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-lg
-           bg-gradient-to-r from-cav-primary to-cav-accent text-white;
-  }
-  .badge-trusted {
-    @apply inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-lg
-           bg-white/20 text-white/80;
+    @apply inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full
+           text-white;
+    background: var(--primary);
   }
   .badge-top {
-    @apply inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-lg
-           bg-gradient-to-r from-amber-600 to-amber-400 text-white;
+    @apply inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full
+           bg-amber-100 text-amber-800;
   }
+  .badge-trusted {
+    @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full;
+    background: var(--bg-alt);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  /* Pills (filter buttons) */
   .pill {
-    @apply px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-350 ease-smooth cursor-pointer;
+    @apply px-4 py-1.5 rounded-full text-xs font-semibold cursor-pointer
+           transition-all duration-300 ease-smooth border;
   }
   .pill-active {
-    @apply bg-cav-primary text-white border-cav-primary;
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
   }
   .pill-inactive {
-    @apply bg-white/5 text-white/70 border-white/20 hover:border-cav-accent hover:bg-cav-accent/10;
+    background: var(--surface);
+    color: var(--text-muted);
+    border-color: var(--border);
   }
+  .pill-inactive:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  /* Section tag */
   .section-tag {
-    @apply inline-block bg-cav-accent/20 text-cav-accent font-bold text-xs
-           px-3 py-1 rounded-full uppercase tracking-wide mb-2;
+    @apply inline-block font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wide mb-2;
+    background: rgba(64, 145, 108, 0.12);
+    color: var(--accent);
   }
+
+  /* Page container */
   .page-container {
     @apply max-w-6xl mx-auto px-4 sm:px-6 py-8;
   }
-  .glass {
-    @apply backdrop-blur-md bg-white/[0.07] border border-white/15 rounded-2xl;
+
+  /* Divider */
+  .divider {
+    border-color: var(--border);
   }
 }
 
-.delay-1 { animation-delay: 0.15s; }
-.delay-2 { animation-delay: 0.3s; }
-.delay-3 { animation-delay: 0.45s; }
-.delay-4 { animation-delay: 0.6s; }
-
-.duration-350 {
-  transition-duration: 350ms;
-}
+/* Animation delays */
+.delay-1 { animation-delay: 0.12s; }
+.delay-2 { animation-delay: 0.24s; }
+.delay-3 { animation-delay: 0.36s; }
+.delay-4 { animation-delay: 0.48s; }
 
 @keyframes letterRise {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ShopCard grayscale effect */
+.shop-img-wrap img {
+  filter: grayscale(40%);
+  transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.group:hover .shop-img-wrap img {
+  filter: grayscale(0%);
+  transform: scale(1.04) rotate(0.3deg);
 }

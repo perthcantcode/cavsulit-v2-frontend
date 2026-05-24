@@ -22,8 +22,8 @@ export function PostShop() {
   if (!user) return (
     <div className="page-container text-center py-20">
       <div className="text-5xl mb-4">🔒</div>
-      <h2 className="font-bold text-xl text-white mb-2">Login Required</h2>
-      <p className="text-white/55 mb-6">You need to be logged in to post a shop.</p>
+      <h2 className="font-bold text-xl [color:var(--text)] mb-2">Login Required</h2>
+      <p className="[color:var(--text)]/55 mb-6">You need to be logged in to post a shop.</p>
       <Link to="/login" className="btn-primary">Login</Link>
     </div>
   );
@@ -80,8 +80,8 @@ export function PostShop() {
 
       <div className="mb-6">
         <span className="section-tag">New Listing</span>
-        <h1 className="font-bold text-2xl text-white">Post Your Shop</h1>
-        <p className="text-sm text-white/55 mt-1">Step {step} of 3 — list your shop for free</p>
+        <h1 className="font-bold text-2xl [color:var(--text)]">Post Your Shop</h1>
+        <p className="text-sm [color:var(--text)]/55 mt-1">Step {step} of 3 — list your shop for free</p>
         <div className="flex gap-2 mt-4">
           {[1, 2, 3].map((s) => (
             <div key={s} className={`h-1 flex-1 rounded-full ${step >= s ? 'bg-cav-accent' : 'bg-white/20'}`} />
@@ -95,10 +95,10 @@ export function PostShop() {
 
         {step === 1 && (
         <div className="card p-6 space-y-4">
-          <h2 className="font-bold text-base text-white border-b border-white/10 pb-2">Basic Info</h2>
+          <h2 className="font-bold text-base [color:var(--text)] border-b border-white/10 pb-2">Basic Info</h2>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1">Shop Name *</label>
+            <label className="block text-xs font-bold [color:var(--text)]/80 mb-1">Shop Name *</label>
             <input value={form.name} onChange={e => setForm({...form, name: e.target.value})}
               placeholder="e.g. BrewSU Drinks, Key Chain Stall..." className="input"/>
           </div>
@@ -142,19 +142,19 @@ export function PostShop() {
 
         {step === 2 && (
         <div className="card p-6 space-y-4">
-          <h2 className="font-bold text-base text-white border-b border-white/10 pb-2">Photos (up to 5)</h2>
+          <h2 className="font-bold text-base [color:var(--text)] border-b border-white/10 pb-2">Photos (up to 5)</h2>
           <div className="flex flex-wrap gap-3">
             {previews.map((src, i) => (
               <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
                 <img src={src} alt="" className="w-full h-full object-cover"/>
                 <button type="button" onClick={() => removePhoto(i)}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center [color:var(--text)] text-xs">
                   <X size={10}/>
                 </button>
               </div>
             ))}
             {previews.length < 5 && (
-              <label className="w-full min-h-[120px] rounded-xl border-2 border-dashed border-white/25 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-cav-accent transition-colors text-white/50 hover:text-cav-accent sm:w-24 sm:min-h-0 sm:h-24">
+              <label className="w-full min-h-[120px] rounded-xl border-2 border-dashed border-white/25 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-cav-accent transition-colors [color:var(--text)]/50 hover:text-cav-accent sm:w-24 sm:min-h-0 sm:h-24">
                 <Upload size={18}/>
                 <span className="text-xs font-semibold">Add Photo</span>
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhoto}/>
@@ -167,7 +167,7 @@ export function PostShop() {
         {step === 3 && (
         <div className="card p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-white/10 pb-2">
-            <h2 className="font-bold text-base text-white">Products / Location</h2>
+            <h2 className="font-bold text-base [color:var(--text)]">Products / Location</h2>
             <button type="button" onClick={addProduct} className="btn-ghost text-xs py-1"><Plus size={12}/>Add Item</button>
           </div>
           <div className="space-y-3">
