@@ -12,7 +12,35 @@ import api from '../utils/api';
 
 const AuthContext = createContext(null);
 
-async function fetchMeWithRetry(firebaseUser, maxAttempts = 4) {
+function isLocalApi() {
+  const base = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  return base.includes('localhost') || base.includes('127.0.0.1');
+}
+
+function formatAuthError(err) {
+  const status = err.response?.status;
+  const serverMsg = err.response?.data?.message;
+
+  if (status === 401) {
+    return (
+      serverMsg ||
+      'Sign-in succeeded but the server rejected your session. On the live site, ask the admin to verify Render Firebase env vars (FIREBASE_PRIVATE_KEY).'
+    );
+  }
+  if (status === 403) {
+    return serverMsg || 'You do not have permission for this action.';
+  }
+  if (!err.response && err.message?.includes('Network')) {
+    return 'Cannot reach the server. If you are on the live site, the API may be waking up — wait a moment and try again.';
+  }
+  return serverMsg || err.message || 'Request failed';
+}
+
+async function fetchMeWithRetry(firebaseUser) {
+  const local = isLocalApi();
+  const maxAttempts = local ? 2 : 4;
+  const retryDelay = local ? 400 : 1500;
+
   await firebaseUser.getIdToken(true);
   let lastErr;
   for (let i = 0; i < maxAttempts; i++) {
@@ -22,11 +50,13 @@ async function fetchMeWithRetry(firebaseUser, maxAttempts = 4) {
     } catch (err) {
       lastErr = err;
       if (i < maxAttempts - 1) {
-        await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
+        await new Promise((r) => setTimeout(r, retryDelay * (i + 1)));
       }
     }
   }
-  throw lastErr;
+  const wrapped = new Error(formatAuthError(lastErr));
+  wrapped.cause = lastErr;
+  throw wrapped;
 }
 
 export function AuthProvider({ children }) {
@@ -42,7 +72,6 @@ export function AuthProvider({ children }) {
           const data = await fetchMeWithRetry(firebaseUser);
           setUser(data);
         } catch {
-          // Backend may still be waking — keep Firebase session, retry in background
           setUser(null);
         } finally {
           setConnecting(false);

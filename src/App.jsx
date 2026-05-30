@@ -26,8 +26,16 @@ const PageLoader = () => (
   </div>
 );
 
+const BOOT_KEY = 'cavsulit_booted';
+
 export function App() {
-  const [booted, setBooted] = useState(false);
+  const [booted, setBooted] = useState(() => {
+    try {
+      return sessionStorage.getItem(BOOT_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
 
   return (
     <ErrorBoundary>

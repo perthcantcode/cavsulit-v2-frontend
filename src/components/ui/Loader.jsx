@@ -2,22 +2,40 @@ import React, { useEffect, useState } from 'react';
 import api from '../../utils/api';
 
 const LETTERS = 'CAVSULIT'.split('');
+const SESSION_KEY = 'cavsulit_booted';
+
+function isLocalApi() {
+  const base = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  return base.includes('localhost') || base.includes('127.0.0.1');
+}
 
 export function LoadingScreen({ onDone }) {
-  const [visible,  setVisible]  = useState(true);
-  const [fadeOut,  setFadeOut]  = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [fadeOut, setFadeOut] = useState(false);
   const [showWake, setShowWake] = useState(false);
 
   useEffect(() => {
-    const wakeTimer = setTimeout(() => setShowWake(true), 3000);
-    const minDelay  = new Promise(r => setTimeout(r, 1800));
-    const ping      = api.get('/ping', { timeout: 65000 }).catch(() => null);
-    const timeout   = new Promise(r => setTimeout(r, 65000));
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      onDone?.();
+      return undefined;
+    }
 
-    Promise.race([Promise.all([ping, minDelay]), timeout]).finally(() => {
+    const local = isLocalApi();
+    const wakeTimer = setTimeout(() => setShowWake(true), local ? 1500 : 2500);
+    const minDelay = new Promise((r) => setTimeout(r, local ? 400 : 700));
+    const ping = local
+      ? Promise.resolve()
+      : api.get('/ping', { timeout: 15000 }).catch(() => null);
+    const cap = new Promise((r) => setTimeout(r, local ? 600 : 15000));
+
+    Promise.race([Promise.all([ping, minDelay]), cap]).finally(() => {
       clearTimeout(wakeTimer);
+      sessionStorage.setItem(SESSION_KEY, '1');
       setFadeOut(true);
-      setTimeout(() => { setVisible(false); onDone?.(); }, 500);
+      setTimeout(() => {
+        setVisible(false);
+        onDone?.();
+      }, 300);
     });
 
     return () => clearTimeout(wakeTimer);
@@ -28,11 +46,10 @@ export function LoadingScreen({ onDone }) {
   return (
     <div
       className={`fixed inset-0 z-[10000] flex flex-col items-center justify-center
-        transition-opacity duration-500 ${fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        transition-opacity duration-300 ${fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       style={{ background: 'var(--bg)' }}
       aria-live="polite"
     >
-      {/* Letters */}
       <div className="flex gap-1 sm:gap-2 mb-6">
         {LETTERS.map((ch, i) => (
           <span
@@ -48,7 +65,6 @@ export function LoadingScreen({ onDone }) {
         ))}
       </div>
 
-      {/* Progress bar */}
       <div
         className="w-40 h-0.5 rounded-full overflow-hidden"
         style={{ background: '#1a1a1a' }}
@@ -59,12 +75,12 @@ export function LoadingScreen({ onDone }) {
         />
       </div>
 
-      {showWake && !fadeOut && (
+      {showWake && !fadeOut && !isLocalApi() && (
         <p
           className="mt-5 text-xs animate-[fadeUp_0.6s_ease_forwards]"
           style={{ color: 'var(--text-muted)' }}
         >
-          Waking up server, this may take ~30s…
+          Waking up server…
         </p>
       )}
     </div>
