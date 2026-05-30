@@ -1,240 +1,398 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Send, ShoppingBag, X, MessageCircle } from 'lucide-react';
+import { Send, ShoppingBag, X, MessageCircle, ArrowLeft, ClipboardList } from 'lucide-react';
 import { io } from 'socket.io-client';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { EmptyStateIcon } from '../components/EmptyStateIcon';
+import { Avatar } from '../components/Avatar';
 
 const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
 
+function formatTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) {
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function isPreorderMessage(text) {
+  return typeof text === 'string' && text.startsWith('📋 PRE-ORDER REQUEST');
+}
+
+function PreorderCard({ text, isMe }) {
+  const lines = text.split('\n').filter(Boolean);
+  const title = lines[0]?.replace('📋 ', '') || 'Pre-Order Request';
+  const details = lines.slice(1);
+
+  return (
+    <div className={`msg-preorder-card${isMe ? ' msg-preorder-card--mine' : ''}`}>
+      <div className="msg-preorder-card-head">
+        <ClipboardList size={16} />
+        <strong>{title}</strong>
+      </div>
+      <ul className="msg-preorder-card-list">
+        {details.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function MessageBubble({ message, isMe }) {
+  if (isPreorderMessage(message.text)) {
+    return (
+      <div className={`msg-row${isMe ? ' msg-row--mine' : ' msg-row--theirs'}`}>
+        <PreorderCard text={message.text} isMe={isMe} />
+        <time className="msg-time">{formatTime(message.createdAt)}</time>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`msg-row${isMe ? ' msg-row--mine' : ' msg-row--theirs'}`}>
+      <div className={`msg-bubble${isMe ? ' msg-bubble--mine' : ' msg-bubble--theirs'}`}>
+        {message.text}
+      </div>
+      <time className="msg-time">{formatTime(message.createdAt)}</time>
+    </div>
+  );
+}
+
 export function Messages() {
-  const { user }        = useAuth();
-  const [searchParams]  = useSearchParams();
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState([]);
-  const [messages,      setMessages]      = useState([]);
+  const [messages, setMessages] = useState([]);
   const [activePartner, setActivePartner] = useState(null);
-  const [text,          setText]          = useState('');
-  const [loading,       setLoading]       = useState(true);
-  const [sending,       setSending]       = useState(false);
-  const [showPreorder,  setShowPreorder]  = useState(false);
-  const [preItem,       setPreItem]       = useState('');
-  const [preTime,       setPreTime]       = useState('');
-  const [preLoc,        setPreLoc]        = useState('');
-  const [preShopId,     setPreShopId]     = useState(searchParams.get('shopId') || '');
-  const bottomRef       = useRef(null);
-  const pollRef         = useRef(null);
-  const socketRef       = useRef(null);
-  const trackedRef      = useRef(new Set());
+  const [text, setText] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [showPreorder, setShowPreorder] = useState(false);
+  const [preItem, setPreItem] = useState('');
+  const [preTime, setPreTime] = useState('');
+  const [preLoc, setPreLoc] = useState('');
+  const [preShopId, setPreShopId] = useState(searchParams.get('shopId') || '');
+  const bottomRef = useRef(null);
+  const socketRef = useRef(null);
   const activePartnerRef = useRef(null);
+  const userIdRef = useRef(null);
 
   useEffect(() => {
     activePartnerRef.current = activePartner;
   }, [activePartner]);
 
   useEffect(() => {
+    userIdRef.current = user?.id;
+  }, [user?.id]);
+
+  const appendMessage = useCallback((msg) => {
+    if (!msg?.id) return;
+    setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+  }, []);
+
+  const loadConversations = useCallback(async () => {
+    try {
+      const { data } = await api.get('/messages/conversations');
+      setConversations(data);
+      return data;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadMessages = useCallback(async (partnerId) => {
+    try {
+      const { data } = await api.get(`/messages/${partnerId}`);
+      setMessages(data);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const openConversation = useCallback(
+    async (partner, shopId = '') => {
+      setActivePartner(partner);
+      setPreShopId(shopId);
+      await loadMessages(partner.id);
+    },
+    [loadMessages],
+  );
+
+  useEffect(() => {
     if (!user) return;
+
     loadConversations();
-    const toId   = searchParams.get('to');
-    const shopId = searchParams.get('shopId');
-    if (toId) openConversation({ id: toId, fullName: 'Seller' }, shopId || '');
 
     const socket = io(SOCKET_URL, { transports: ['websocket', 'polling'], reconnection: true });
     socketRef.current = socket;
     socket.emit('join', user.id);
-    socket.on('receive_message', (data) => {
+
+    const onReceive = (data) => {
+      if (!data?.id || data.senderId === userIdRef.current) return;
       const partner = activePartnerRef.current;
       if (partner && data.senderId === partner.id) {
-        setMessages((m) => [...m, data]);
+        appendMessage(data);
       }
       loadConversations();
-    });
-    return () => { socket.disconnect(); socketRef.current = null; };
-  }, [user?.id]);
+    };
+
+    socket.on('receive_message', onReceive);
+
+    return () => {
+      socket.off('receive_message', onReceive);
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [user?.id, loadConversations, appendMessage]);
+
+  useEffect(() => {
+    if (!user) return;
+    const toId = searchParams.get('to');
+    const shopId = searchParams.get('shopId') || '';
+    if (!toId) return;
+
+    const openFromParams = async () => {
+      const list = await loadConversations();
+      const existing = list?.find((c) => String(c.partner?.id) === String(toId));
+      if (existing) {
+        await openConversation(existing.partner, existing.shopId || shopId);
+      } else {
+        await openConversation({ id: toId, fullName: 'Seller' }, shopId);
+      }
+    };
+
+    openFromParams();
+  }, [user?.id, searchParams, loadConversations, openConversation]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  useEffect(() => {
-    if (activePartner) {
-      clearInterval(pollRef.current);
-      pollRef.current = setInterval(() => loadMessages(activePartner.id), 8000);
-    }
-    return () => clearInterval(pollRef.current);
-  }, [activePartner]);
-
-  const loadConversations = async () => {
-    try {
-      const { data } = await api.get('/messages/conversations');
-      setConversations(data);
-    } finally { setLoading(false); }
-  };
-
-  const openConversation = async (partner, shopId = '') => {
-    setActivePartner(partner);
-    setPreShopId(shopId);
-    await loadMessages(partner.id);
-  };
-
-  const loadMessages = async (partnerId) => {
-    try {
-      const { data } = await api.get(`/messages/${partnerId}`);
-      setMessages(data);
-    } catch {}
-  };
-
-  const trackMessage = (shopId) => {
-    if (!shopId || trackedRef.current.has(shopId)) return;
-    trackedRef.current.add(shopId);
-    api.post('/analytics/track', { shopId, type: 'message' }).catch(() => {});
-  };
-
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!text.trim() || !activePartner || sending) return;
     setSending(true);
+    const body = text.trim();
+    setText('');
     try {
       const { data } = await api.post('/messages', {
-        receiverId: activePartner.id, text: text.trim(), shopId: preShopId || null,
-      });
-      if (preShopId) trackMessage(preShopId);
-      socketRef.current?.emit('send_message', {
-        ...data,
         receiverId: activePartner.id,
+        text: body,
+        shopId: preShopId || null,
       });
-      setMessages(m => [...m, data]);
-      setText('');
+      appendMessage(data);
+      if (data.receiverId !== user.id) {
+        socketRef.current?.emit('send_message', data);
+      }
       loadConversations();
-    } finally { setSending(false); }
-  };
-
-  const sendPreorder = async () => {
-    if (!preItem.trim()) return;
-    const msg = `📋 PRE-ORDER REQUEST\nItems: ${preItem}\nPickup: ${preTime || 'TBD'}\nLocation: ${preLoc || 'TBD'}`;
-    try {
-      if (preShopId) await api.post('/preorders', { shopId: preShopId, items: [{name: preItem, qty: 1}], pickupTime: preTime, locationNote: preLoc });
-      const { data } = await api.post('/messages', { receiverId: activePartner.id, text: msg, shopId: preShopId || null });
-      setMessages(m => [...m, data]);
-      setShowPreorder(false);
-      setPreItem(''); setPreTime(''); setPreLoc('');
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error');
+    } finally {
+      setSending(false);
     }
   };
 
-  if (!user) return (
-    <div className="page-container text-center py-20">
-      <div className="text-5xl mb-4">💬</div>
-      <h2 className="font-bold text-xl [color:var(--text)] mb-2">Login to view messages</h2>
-      <Link to="/login" className="btn-primary mt-4">Login</Link>
-    </div>
-  );
+  const sendPreorder = async () => {
+    if (!preItem.trim() || !activePartner || sending) return;
+    setSending(true);
+    try {
+      if (preShopId) {
+        const { data } = await api.post('/preorders', {
+          shopId: preShopId,
+          items: [{ name: preItem.trim(), qty: 1 }],
+          pickupTime: preTime,
+          locationNote: preLoc,
+        });
+        if (data.message) appendMessage(data.message);
+      } else {
+        const msg = `📋 PRE-ORDER REQUEST\nItems: ${preItem.trim()}\nPickup: ${preTime || 'TBD'}\nLocation: ${preLoc || 'TBD'}`;
+        const { data } = await api.post('/messages', {
+          receiverId: activePartner.id,
+          text: msg,
+          shopId: null,
+        });
+        appendMessage(data);
+        if (data.receiverId !== user.id) {
+          socketRef.current?.emit('send_message', data);
+        }
+      }
+      setShowPreorder(false);
+      setPreItem('');
+      setPreTime('');
+      setPreLoc('');
+      loadConversations();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not send pre-order');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="page-container text-center py-20">
+        <EmptyStateIcon icon={MessageCircle} />
+        <h2 className="font-bold text-xl [color:var(--text)] mb-2">Login to view messages</h2>
+        <Link to="/login" className="btn-primary mt-4">
+          Login
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-container !py-0 !px-0 max-w-none">
-      <div className="flex h-[calc(100vh-128px)] overflow-hidden">
-
-        {/* Sidebar */}
-        <div className={`${activePartner ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-72 border-r border-white/10 bg-white/5`}>
-          <div className="p-4 border-b border-white/10">
-            <h2 className="font-bold text-lg [color:var(--text)]">Messages</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {loading ? (
-              <div className="p-4 space-y-3">{[...Array(4)].map((_,i) => <div key={i} className="h-14 bg-gray-100 rounded-xl animate-pulse"/>)}</div>
-            ) : conversations.length === 0 ? (
-              <div className="p-8 text-center text-cav-text-muted">
-                <MessageCircle size={32} className="mx-auto mb-2 opacity-30"/>
-                <div className="text-sm">No messages yet</div>
-                <div className="text-xs mt-1">Visit a shop and tap Message Seller</div>
-              </div>
-            ) : conversations.map((c, i) => (
-              <button key={i} onClick={() => openConversation(c.partner, c.shopId || '')}
-                className={`w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors text-left border-b border-gray-50
-                  ${activePartner?.id === c.partner?.id ? 'bg-cav-green-accent/10 border-l-2 border-l-cav-green' : ''}`}>
-                <div className="w-10 h-10 rounded-full bg-cav-green flex items-center justify-center [color:var(--text)] font-bold flex-shrink-0">
-                  {c.partner?.fullName?.[0] || '?'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm text-cav-green-dark truncate">{c.partner?.fullName}</div>
-                  <div className="text-xs text-cav-text-muted truncate mt-0.5">{c.lastMessage}</div>
-                </div>
-              </button>
-            ))}
-          </div>
+    <div className="messages-page">
+      <aside className={`messages-sidebar${activePartner ? ' messages-sidebar--hidden-mobile' : ''}`}>
+        <div className="messages-sidebar-head">
+          <h2>Messages</h2>
         </div>
-
-        {/* Chat panel */}
-        <div className={`${activePartner ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
-          {!activePartner ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-cav-text-muted">
-              <MessageCircle size={48} className="mb-4 opacity-20"/>
-              <div className="font-semibold">Select a conversation</div>
+        <div className="messages-sidebar-list">
+          {loading ? (
+            <div className="messages-sidebar-loading">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="messages-skeleton" />
+              ))}
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="messages-sidebar-empty">
+              <MessageCircle size={32} strokeWidth={2} />
+              <p>No messages yet</p>
+              <span>Visit a shop and tap Message Seller</span>
             </div>
           ) : (
-            <>
-              {/* Chat header */}
-              <div className="glass border-b border-white/10 px-4 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <button onClick={() => setActivePartner(null)} className="md:hidden btn-ghost p-1">←</button>
-                  <div className="w-8 h-8 rounded-full bg-cav-green flex items-center justify-center [color:var(--text)] text-sm font-bold">
-                    {activePartner.fullName?.[0] || '?'}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-sm">{activePartner.fullName}</div>
-                    {activePartner.department && <div className="text-xs text-cav-text-muted">{activePartner.department}</div>}
-                  </div>
-                </div>
-                <button onClick={() => setShowPreorder(true)} className="btn-ghost text-xs py-1.5">
-                  <ShoppingBag size={13}/>Pre-Order
-                </button>
-              </div>
-
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {messages.map((m, i) => {
-                  const isMe = m.senderId === user.id;
-                  return (
-                    <div key={i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap
-                        ${isMe ? 'bg-cav-primary [color:var(--text)] rounded-br-sm' : 'bg-white/10 [color:var(--text)] rounded-bl-sm border border-white/15'}`}>
-                        {m.text}
-                      </div>
+            conversations.map((c) => {
+              const active = activePartner?.id === c.partner?.id;
+              return (
+                <button
+                  key={c.partner?.id}
+                  type="button"
+                  onClick={() => openConversation(c.partner, c.shopId || '')}
+                  className={`messages-convo${active ? ' is-active' : ''}`}
+                >
+                  <Avatar user={c.partner} size={40} className="messages-convo-avatar" />
+                  <div className="messages-convo-body">
+                    <div className="messages-convo-top">
+                      <span className="messages-convo-name">{c.partner?.fullName}</span>
+                      <time>{formatTime(c.lastAt)}</time>
                     </div>
-                  );
-                })}
-                <div ref={bottomRef}/>
-              </div>
-
-              {/* Pre-order modal */}
-              {showPreorder && (
-                <div className="bg-white border-t border-cav-green-accent/30 p-4 space-y-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="font-display font-bold text-sm text-cav-green-dark">📋 Pre-Order Request</div>
-                    <button onClick={() => setShowPreorder(false)}><X size={16} className="text-gray-400"/></button>
+                    <p className="messages-convo-preview">{c.lastMessage}</p>
                   </div>
-                  <input value={preItem} onChange={e => setPreItem(e.target.value)}
-                    placeholder="Items (e.g. Milk Tea x2, Taro x1)" className="input text-sm"/>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input type="datetime-local" value={preTime} onChange={e => setPreTime(e.target.value)} className="input text-sm"/>
-                    <input value={preLoc} onChange={e => setPreLoc(e.target.value)} placeholder="Pickup location" className="input text-sm"/>
-                  </div>
-                  <button onClick={sendPreorder} className="btn-primary w-full justify-center text-sm">Send Pre-Order</button>
-                </div>
-              )}
-
-              {/* Input */}
-              <form onSubmit={sendMessage} className="bg-white border-t border-gray-100 p-3 flex gap-2">
-                <input value={text} onChange={e => setText(e.target.value)}
-                  placeholder="Type a message..." className="input flex-1"/>
-                <button type="submit" disabled={sending || !text.trim()} className="btn-primary px-4 disabled:opacity-50">
-                  <Send size={16}/>
                 </button>
-              </form>
-            </>
+              );
+            })
           )}
         </div>
-      </div>
+      </aside>
+
+      <section className={`messages-main${activePartner ? ' messages-main--active' : ''}`}>
+        {!activePartner ? (
+          <div className="messages-empty-main">
+            <MessageCircle size={48} strokeWidth={2} />
+            <p>Select a conversation</p>
+          </div>
+        ) : (
+          <>
+            <header className="messages-chat-head">
+              <button
+                type="button"
+                className="messages-back md:hidden"
+                onClick={() => setActivePartner(null)}
+                aria-label="Back"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <div className="messages-chat-head-user">
+                <Avatar user={activePartner} size={40} className="messages-convo-avatar" />
+                <div>
+                  <strong>{activePartner.fullName}</strong>
+                  {activePartner.department && (
+                    <span>{activePartner.department}</span>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-secondary messages-preorder-btn"
+                onClick={() => setShowPreorder(true)}
+              >
+                <ShoppingBag size={16} strokeWidth={2.25} />
+                Pre-Order
+              </button>
+            </header>
+
+            <div className="messages-chat-area">
+              {messages.map((m) => (
+                <MessageBubble key={m.id} message={m} isMe={m.senderId === user.id} />
+              ))}
+              <div ref={bottomRef} />
+            </div>
+
+            {showPreorder && (
+              <div className="messages-preorder-panel">
+                <div className="messages-preorder-panel-head">
+                  <strong>
+                    <ClipboardList size={16} />
+                    Pre-Order Request
+                  </strong>
+                  <button type="button" onClick={() => setShowPreorder(false)} aria-label="Close">
+                    <X size={16} />
+                  </button>
+                </div>
+                <input
+                  value={preItem}
+                  onChange={(e) => setPreItem(e.target.value)}
+                  placeholder="Items (e.g. Milk Tea x2)"
+                  className="input"
+                />
+                <div className="messages-preorder-grid">
+                  <input
+                    type="datetime-local"
+                    value={preTime}
+                    onChange={(e) => setPreTime(e.target.value)}
+                    className="input"
+                  />
+                  <input
+                    value={preLoc}
+                    onChange={(e) => setPreLoc(e.target.value)}
+                    placeholder="Pickup location"
+                    className="input"
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={sending || !preItem.trim()}
+                  onClick={sendPreorder}
+                  className="btn-primary w-full justify-center"
+                >
+                  Send Pre-Order
+                </button>
+              </div>
+            )}
+
+            <form onSubmit={sendMessage} className="messages-input-bar">
+              <input
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Type a message..."
+                className="input messages-input"
+                disabled={sending}
+              />
+              <button
+                type="submit"
+                disabled={sending || !text.trim()}
+                className="messages-send-btn"
+                aria-label="Send"
+              >
+                <Send size={18} strokeWidth={2.25} />
+              </button>
+            </form>
+          </>
+        )}
+      </section>
     </div>
   );
 }

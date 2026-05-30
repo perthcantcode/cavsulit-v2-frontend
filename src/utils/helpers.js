@@ -1,14 +1,3 @@
-export const CAT_ICONS = {
-  food:            '🍱',
-  drinks:          '🧋',
-  merch:           '👕',
-  accessories:     '💍',
-  school_supplies: '📚',
-  beauty:          '💅',
-  services:        '🛠️',
-  other:           '🛒',
-};
-
 export const COLLEGES    = ['CEIT','CON','CEMDS','COE','CAS','Main Gate','Canteen','Dormitory','Other'];
 export const CATEGORIES  = ['food','drinks','merch','accessories','school_supplies','beauty','services','other'];
 export const DEPARTMENTS = ['CEIT','CON','CEMDS','COE','CAS','STAFF','INSTRUCTOR','OTHER'];
@@ -37,6 +26,45 @@ export const categoryColor = (cat) => {
 };
 
 export const fmt = (n) => new Intl.NumberFormat('en-PH').format(n);
+
+/** Main vs satellite campus label for shop detail sidebar chip */
+export function formatCampusLabel(shop) {
+  if (!shop) return 'CvSU Main';
+  if (shop.campusType === 'satellite') {
+    const name = shop.satelliteCampus?.trim();
+    return name ? `Satellite · ${name}` : 'Satellite campus';
+  }
+  return 'CvSU Main';
+}
+
+/** Structured location lines for browse cards (avoids long cluttered strings) */
+export function formatShopCardLocation(shop) {
+  if (!shop) {
+    return { campusTag: 'Main', campusDetail: null, college: null };
+  }
+  const college = shop.college && shop.college !== 'Other' ? shop.college : null;
+  if (shop.campusType === 'satellite') {
+    return {
+      campusTag: 'Satellite',
+      campusDetail: shop.satelliteCampus?.trim() || null,
+      college,
+    };
+  }
+  return {
+    campusTag: 'Main',
+    campusDetail: null,
+    college,
+  };
+}
+
+/** Show first half of a string; mask the rest (e.g. 0917123****). */
+export function maskSensitive(value) {
+  if (value == null || value === '') return '';
+  const s = String(value).trim();
+  if (s.length <= 1) return '*';
+  const visible = Math.max(1, Math.ceil(s.length / 2));
+  return s.slice(0, visible) + '*'.repeat(s.length - visible);
+}
 
 // Handles both Cloudinary URLs (already absolute) and legacy local paths
 export const photoUrl = (p) =>

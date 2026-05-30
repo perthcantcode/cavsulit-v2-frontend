@@ -1,219 +1,339 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Upload, Plus, X, MapPin, ArrowLeft } from 'lucide-react';
+import { Upload, ArrowLeft, Check } from 'lucide-react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { CATEGORIES, COLLEGES, CAT_ICONS } from '../utils/helpers';
+import { formatCategory } from '../components/CategoryIcon';
+import { ListingFormFields } from '../components/ListingFormFields';
+import { ShopLogoUpload } from '../components/ShopLogoUpload';
+import { ShopLogo } from '../components/ShopLogo';
 
-export function PostShop() {
-  const { user }   = useAuth();
-  const navigate   = useNavigate();
-  const [loading,  setLoading]  = useState(false);
-  const [photos,   setPhotos]   = useState([]);
-  const [previews, setPreviews] = useState([]);
-  const [products, setProducts] = useState([{ name: '', price: '' }]);
-  const [form, setForm] = useState({
-    name: '', description: '', category: 'other', college: 'Other',
-    locationDesc: '', availableDate: '',
-  });
-  const [error, setError] = useState('');
-  const [step, setStep]   = useState(1);
+const STEPS = [
+  { num: 1, label: 'Shop Info' },
+  { num: 2, label: 'Images' },
+  { num: 3, label: 'Review' },
+];
 
-  if (!user) return (
-    <div className="page-container text-center py-20">
-      <div className="text-5xl mb-4">🔒</div>
-      <h2 className="font-bold text-xl [color:var(--text)] mb-2">Login Required</h2>
-      <p className="[color:var(--text)]/55 mb-6">You need to be logged in to post a shop.</p>
-      <Link to="/login" className="btn-primary">Login</Link>
+function FormStepper({ step }) {
+  return (
+    <div className="form-stepper" aria-label={`Step ${step} of 3`}>
+      {STEPS.map((s, i) => (
+        <div key={s.num} style={{ display: 'contents' }}>
+          <div
+            className={`form-stepper-step${step === s.num ? ' is-active' : ''}${step > s.num ? ' is-done' : ''}`}
+          >
+            <span className="form-stepper-dot">{step > s.num ? '✓' : s.num}</span>
+            <span className="form-stepper-label">{s.label}</span>
+          </div>
+          {i < STEPS.length - 1 && (
+            <hr className={`form-stepper-line${step > s.num ? ' is-done' : ''}`} />
+          )}
+        </div>
+      ))}
     </div>
   );
+}
+
+export function PostShop() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [photos, setPhotos] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [shopLogoFile, setShopLogoFile] = useState(null);
+  const [shopLogoPreview, setShopLogoPreview] = useState(null);
+  const [gcashQrFile, setGcashQrFile] = useState(null);
+  const [gcashQrPreview, setGcashQrPreview] = useState(null);
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    productPrice: '',
+    category: 'other',
+    college: 'Other',
+    campusType: 'main',
+    satelliteCampus: '',
+    locationDesc: '',
+    availableDate: '',
+    gcashNumber: '',
+  });
+  const [error, setError] = useState('');
+  const [step, setStep] = useState(1);
+
+  if (!user) {
+    return (
+      <div className="page-container form-page text-center py-20">
+        <h2 className="font-bold text-xl mb-2">Login Required</h2>
+        <p className="[color:var(--text-muted)] mb-6">Log in to post a campus listing.</p>
+        <Link to="/login" className="btn-primary">
+          Login
+        </Link>
+      </div>
+    );
+  }
 
   const handlePhoto = (e) => {
     const files = Array.from(e.target.files || []);
-    setPhotos(prev => [...prev, ...files].slice(0, 5));
-    files.forEach(f => {
+    const room = 5 - photos.length;
+    const toAdd = files.slice(0, room);
+    setPhotos((prev) => [...prev, ...toAdd].slice(0, 5));
+    toAdd.forEach((f) => {
       const reader = new FileReader();
-      reader.onload = ev => setPreviews(prev => [...prev, ev.target.result].slice(0, 5));
+      reader.onload = (ev) =>
+        setPreviews((prev) => [...prev, ev.target.result].slice(0, 5));
       reader.readAsDataURL(f);
     });
+    e.target.value = '';
   };
 
   const removePhoto = (i) => {
-    setPhotos(prev => prev.filter((_,idx) => idx !== i));
-    setPreviews(prev => prev.filter((_,idx) => idx !== i));
+    setPhotos((prev) => prev.filter((_, idx) => idx !== i));
+    setPreviews((prev) => prev.filter((_, idx) => idx !== i));
   };
 
-  const addProduct    = () => setProducts(p => [...p, { name: '', price: '' }]);
-  const removeProduct = (i) => setProducts(p => p.filter((_,idx) => idx !== i));
-  const updateProduct = (i, field, val) =>
-    setProducts(p => p.map((x, idx) => idx === i ? { ...x, [field]: val } : x));
+  const handleShopLogo = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setShopLogoFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setShopLogoPreview(ev.target.result);
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.name.trim()) return setError('Shop name is required');
+  const handleGcashQr = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setGcashQrFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setGcashQrPreview(ev.target.result);
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const goNext = () => {
+    if (step === 1) {
+      if (!form.name.trim()) return setError('Product / listing name is required');
+      if (!form.productPrice || Number(form.productPrice) <= 0) {
+        return setError('Price is required');
+      }
+      if (form.campusType === 'satellite' && !form.satelliteCampus.trim()) {
+        return setError('Please specify which satellite campus');
+      }
+    }
+    setError('');
+    setStep((s) => s + 1);
+  };
+
+  const handleCreate = async () => {
+    if (!form.name.trim() || !form.productPrice) {
+      setError('Name and price are required');
+      setStep(1);
+      return;
+    }
     setLoading(true);
     setError('');
     try {
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-      photos.forEach(f => fd.append('photos', f));
+      fd.append('name', form.name.trim());
+      fd.append('productName', form.name.trim());
+      fd.append('productPrice', form.productPrice);
+      fd.append('description', form.description);
+      fd.append('category', form.category);
+      fd.append('college', form.college);
+      fd.append('campusType', form.campusType);
+      if (form.campusType === 'satellite') {
+        fd.append('satelliteCampus', form.satelliteCampus);
+      }
+      fd.append('locationDesc', form.locationDesc);
+      if (form.availableDate) fd.append('availableDate', form.availableDate);
+      if (form.gcashNumber) fd.append('gcashNumber', form.gcashNumber);
+      photos.forEach((f) => fd.append('photos', f));
+      if (shopLogoFile) fd.append('shopLogo', shopLogoFile);
+      if (gcashQrFile) fd.append('gcashQr', gcashQrFile);
 
       const { data: shop } = await api.post('/shops', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-
-      for (const p of products.filter(x => x.name && x.price)) {
-        await api.post('/products', { shopId: shop.id, name: p.name, price: parseFloat(p.price) });
-      }
 
       navigate(`/shop/${shop.id}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create shop');
+      setError(err.response?.data?.message || 'Failed to create listing');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="page-container max-w-3xl">
-      <Link to="/browse" className="btn-ghost mb-6 inline-flex"><ArrowLeft size={16}/>Back</Link>
+    <div className="page-container">
+      <div className="form-page">
+        <Link to="/browse" className="btn-ghost mb-4 inline-flex">
+          <ArrowLeft size={16} /> Back
+        </Link>
 
-      <div className="mb-6">
-        <span className="section-tag">New Listing</span>
-        <h1 className="font-bold text-2xl [color:var(--text)]">Post Your Shop</h1>
-        <p className="text-sm [color:var(--text)]/55 mt-1">Step {step} of 3 — list your shop for free</p>
-        <div className="flex gap-2 mt-4">
-          {[1, 2, 3].map((s) => (
-            <div key={s} className={`h-1 flex-1 rounded-full ${step >= s ? 'bg-cav-accent' : 'bg-white/20'}`} />
-          ))}
-        </div>
-      </div>
+        <header className="form-page-header">
+          <span className="section-tag">New Listing</span>
+          <h1 className="font-bold text-2xl [color:var(--text)]">Post Your Shop</h1>
+          <p className="text-sm [color:var(--text-muted)] mt-1">
+            One post = one product. Post again for another item.
+          </p>
+          <FormStepper step={step} />
+        </header>
 
-      {error && <div className="bg-red-500/10 border border-red-500/30 text-red-300 text-sm rounded-xl px-4 py-3 mb-4">{error}</div>}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-
-        {step === 1 && (
-        <div className="card p-6 space-y-4">
-          <h2 className="font-bold text-base [color:var(--text)] border-b border-white/10 pb-2">Basic Info</h2>
-
-          <div>
-            <label className="block text-xs font-bold [color:var(--text)]/80 mb-1">Shop Name *</label>
-            <input value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-              placeholder="e.g. BrewSU Drinks, Key Chain Stall..." className="input"/>
+        {error && (
+          <div className="bg-red-50 border-2 border-red-600 text-red-700 text-sm px-4 py-3 mb-4">
+            {error}
           </div>
-
-          <div>
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Description</label>
-            <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})}
-              placeholder="Describe what you sell, your schedule, special offers..." rows={4} className="input resize-none"/>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-cav-green-dark mb-1">Category</label>
-              <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="input">
-                {CATEGORIES.map(c => <option key={c} value={c}>{CAT_ICONS[c]} {c.replace('_',' ')}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-cav-green-dark mb-1">College / Building</label>
-              <select value={form.college} onChange={e => setForm({...form, college: e.target.value})} className="input">
-                {COLLEGES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-cav-green-dark mb-1">
-                <MapPin size={11} className="inline mr-1"/>Location Description
-              </label>
-              <input value={form.locationDesc} onChange={e => setForm({...form, locationDesc: e.target.value})}
-                placeholder="e.g. Near CEIT lobby, 2nd floor..." className="input"/>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-cav-green-dark mb-1">Available Date</label>
-              <input type="date" value={form.availableDate} onChange={e => setForm({...form, availableDate: e.target.value})} className="input"/>
-            </div>
-          </div>
-        </div>
         )}
 
-        {step === 2 && (
-        <div className="card p-6 space-y-4">
-          <h2 className="font-bold text-base [color:var(--text)] border-b border-white/10 pb-2">Photos (up to 5)</h2>
-          <div className="flex flex-wrap gap-3">
-            {previews.map((src, i) => (
-              <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
-                <img src={src} alt="" className="w-full h-full object-cover"/>
-                <button type="button" onClick={() => removePhoto(i)}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center [color:var(--text)] text-xs">
-                  <X size={10}/>
-                </button>
+        <div className="form-shell">
+          {step === 1 && (
+            <div className="card form-card">
+              <h2 className="form-card-title">Listing info</h2>
+              <ListingFormFields
+                form={form}
+                setForm={setForm}
+                gcashQrPreview={gcashQrPreview}
+                onGcashQr={handleGcashQr}
+                onRemoveGcashQr={() => {
+                  setGcashQrFile(null);
+                  setGcashQrPreview(null);
+                }}
+              />
+            </div>
+          )}
+
+          {step === 2 && (
+            <>
+            <div className="card form-card">
+              <h2 className="form-card-title">Shop profile photo</h2>
+              <p className="text-xs [color:var(--text-muted)] m-0 mb-4">
+                Each listing has its own shop photo — separate from your account profile on My Profile.
+              </p>
+              <ShopLogoUpload
+                preview={shopLogoPreview}
+                onChange={handleShopLogo}
+                onRemove={() => {
+                  setShopLogoFile(null);
+                  setShopLogoPreview(null);
+                }}
+                shopName={form.name.trim() || undefined}
+              />
+            </div>
+
+            <div className="card form-card">
+              <h2 className="form-card-title">Product photos (up to 5)</h2>
+              <div className="form-photo-grid">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  if (previews[i]) {
+                    return (
+                      <div key={i} className="form-photo-slot">
+                        <img src={previews[i]} alt="" />
+                        <button
+                          type="button"
+                          className="form-photo-remove"
+                          onClick={() => removePhoto(i)}
+                          aria-label="Remove"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  }
+                  if (i === previews.length && previews.length < 5) {
+                    return (
+                      <label key={i} className="form-photo-slot form-photo-slot--add">
+                        <Upload size={18} />
+                        <span className="text-xs font-semibold">Add photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={handlePhoto}
+                        />
+                      </label>
+                    );
+                  }
+                  return <div key={i} className="form-photo-slot" aria-hidden />;
+                })}
               </div>
-            ))}
-            {previews.length < 5 && (
-              <label className="w-full min-h-[120px] rounded-xl border-2 border-dashed border-white/25 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-cav-accent transition-colors [color:var(--text)]/50 hover:text-cav-accent sm:w-24 sm:min-h-0 sm:h-24">
-                <Upload size={18}/>
-                <span className="text-xs font-semibold">Add Photo</span>
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhoto}/>
-              </label>
+              <p className="form-photo-notice m-0 mt-3">
+                <strong>Photo tip:</strong> Use landscape photos at <strong>16:9</strong> ratio (e.g. 1280×720 or
+                800×450 px). Portrait or square images are cropped in Browse cards — the full subject may not show.
+              </p>
+              <p className="form-size-guide m-0 mt-2">
+                First photo is the product cover in Browse. Up to 5 photos allowed.
+              </p>
+            </div>
+            </>
+          )}
+
+          {step === 3 && (
+            <div className="form-review-card">
+              <h3>Review your listing</h3>
+              {previews[0] && (
+                <img
+                  src={previews[0]}
+                  alt=""
+                  className="form-review-cover"
+                />
+              )}
+              <div className="form-review-brand">
+                {shopLogoPreview ? (
+                  <img src={shopLogoPreview} alt="" className="shop-logo shop-logo--img shop-logo--round" />
+                ) : (
+                  <ShopLogo name={form.name} size={48} />
+                )}
+                <div>
+                  <strong>{form.name}</strong>
+                  <div className="text-sm [color:var(--text-muted)]">
+                    ₱{Number(form.productPrice).toFixed(2)}
+                  </div>
+                </div>
+              </div>
+              <ul className="form-review-list">
+                <li>
+                  Shop photo: {shopLogoPreview ? 'Uploaded' : 'Not set (placeholder will show)'}
+                </li>
+                <li>
+                  {formatCategory(form.category)} · {form.college}
+                </li>
+                <li>
+                  {form.campusType === 'main'
+                    ? 'Main campus'
+                    : `Satellite: ${form.satelliteCampus}`}
+                  {form.locationDesc ? ` · ${form.locationDesc}` : ''}
+                </li>
+                <li>{previews.length} photo(s)</li>
+                <li>
+                  GCash:{' '}
+                  {form.gcashNumber || gcashQrPreview
+                    ? form.gcashNumber || 'QR uploaded'
+                    : 'Not provided'}
+                </li>
+              </ul>
+            </div>
+          )}
+
+          <div className={`form-actions${step > 1 ? ' is-split' : ''}`}>
+            {step > 1 && (
+              <button type="button" onClick={() => setStep((s) => s - 1)} className="btn-secondary">
+                Back
+              </button>
+            )}
+            {step < 3 ? (
+              <button type="button" onClick={goNext} className="btn-primary">
+                Next
+              </button>
+            ) : (
+              <button type="button" disabled={loading} onClick={handleCreate} className="btn-primary">
+                <Check size={16} />
+                {loading ? 'Creating...' : 'Create Shop'}
+              </button>
             )}
           </div>
         </div>
-        )}
-
-        {step === 3 && (
-        <div className="card p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 pb-2">
-            <h2 className="font-bold text-base [color:var(--text)]">Products / Location</h2>
-            <button type="button" onClick={addProduct} className="btn-ghost text-xs py-1"><Plus size={12}/>Add Item</button>
-          </div>
-          <div className="space-y-3">
-            {products.map((p, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <input value={p.name} onChange={e => updateProduct(i, 'name', e.target.value)}
-                  placeholder="Item name" className="input flex-1"/>
-                <div className="relative w-32">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₱</span>
-                  <input value={p.price} onChange={e => updateProduct(i, 'price', e.target.value)}
-                    placeholder="0.00" type="number" min="0" step="0.01" className="input pl-7"/>
-                </div>
-                {products.length > 1 && (
-                  <button type="button" onClick={() => removeProduct(i)} className="text-red-400 hover:text-red-500 p-1"><X size={14}/></button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-        )}
-
-        <div className="flex gap-3">
-          {step > 1 && (
-            <button type="button" onClick={() => setStep((s) => s - 1)} className="btn-secondary flex-1 justify-center">
-              Back
-            </button>
-          )}
-          {step < 3 ? (
-            <button
-              type="button"
-              onClick={() => {
-                if (step === 1 && !form.name.trim()) return setError('Shop name is required');
-                setError('');
-                setStep((s) => s + 1);
-              }}
-              className="btn-primary flex-1 justify-center"
-            >
-              Next
-            </button>
-          ) : (
-            <button type="submit" disabled={loading} className="btn-primary flex-1 justify-center py-3">
-              {loading ? 'Posting...' : 'Post Shop'}
-            </button>
-          )}
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

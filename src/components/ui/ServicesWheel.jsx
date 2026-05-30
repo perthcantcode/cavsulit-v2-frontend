@@ -1,71 +1,213 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { GlassCard } from './GlassCard';
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  Laptop,
+  Mic2,
+  Palette,
+  ShoppingBag,
+  Sparkles,
+  UtensilsCrossed,
+} from 'lucide-react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { FadeIn } from './FadeIn';
 
 const SERVICES = [
-  { name: 'Food',      icon: '🍜', desc: 'Order meals from campus food stalls' },
-  { name: 'Merch',     icon: '🛍️', desc: 'Buy student-made products and campus merch' },
-  { name: 'Services',  icon: '💼', desc: 'Book tutoring, printing, and more' },
-  { name: 'Freelance', icon: '🎨', desc: 'Hire student designers, editors, and devs' },
+  {
+    Icon: ShoppingBag,
+    title: 'Products & Merch',
+    desc: 'Shop campus-made clothing, accessories, and collectibles from fellow students.',
+  },
+  {
+    Icon: UtensilsCrossed,
+    title: 'Food & Drinks',
+    desc: 'Pre-order meals, snacks, and drinks from sellers around campus.',
+  },
+  {
+    Icon: Laptop,
+    title: 'Freelance Services',
+    desc: 'Find design, coding, tutoring, and repair help from student freelancers.',
+  },
+  {
+    Icon: BookOpen,
+    title: 'Academic Help',
+    desc: 'Get notes, tutoring, and exam reviews from peers who know your courses.',
+  },
+  {
+    Icon: Palette,
+    title: 'Creative Services',
+    desc: 'Book photography, art commissions, and printing for projects and events.',
+  },
+  {
+    Icon: Sparkles,
+    title: 'Personal Care',
+    desc: 'Browse skincare, beauty, and wellness products from trusted campus sellers.',
+  },
+  {
+    Icon: Home,
+    title: 'Rentals & Lend',
+    desc: 'Borrow gear, equipment, and everyday items without buying new.',
+  },
+  {
+    Icon: Mic2,
+    title: 'Events & Gigs',
+    desc: 'Hire performers, emcees, and photographers for campus events.',
+  },
 ];
 
-export function ServicesWheel() {
+export function ServicesCarousel() {
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const trackRef = useRef(null);
+  const activeRef = useRef(0);
+  const len = SERVICES.length;
+
+  const getCards = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return [];
+    return [...track.querySelectorAll('.services-card')];
+  }, []);
+
+  const syncEdgePadding = useCallback(() => {
+    const track = trackRef.current;
+    const card = getCards()[0];
+    if (!track || !card) return;
+    const pad = Math.max(12, (track.clientWidth - card.offsetWidth) / 2);
+    track.style.setProperty('--services-edge', `${pad}px`);
+  }, [getCards]);
+
+  const scrollToIndex = useCallback(
+    (index, behavior = 'smooth') => {
+      const track = trackRef.current;
+      if (!track) return;
+
+      const run = () => {
+        const cards = getCards();
+        const card = cards[index];
+        if (!card) return;
+
+        syncEdgePadding();
+
+        const pad =
+          parseFloat(getComputedStyle(track).getPropertyValue('--services-edge')) ||
+          Math.max(12, (track.clientWidth - card.offsetWidth) / 2);
+        const ideal = card.offsetLeft - pad;
+        const max = Math.max(0, track.scrollWidth - track.clientWidth);
+        const left = Math.max(0, Math.min(ideal, max));
+
+        track.scrollTo({ left, behavior });
+      };
+
+      requestAnimationFrame(() => requestAnimationFrame(run));
+    },
+    [getCards, syncEdgePadding],
+  );
+
+  const navigateTo = useCallback(
+    (index, behavior = 'smooth') => {
+      const next = ((index % len) + len) % len;
+      activeRef.current = next;
+      setActive(next);
+      scrollToIndex(next, behavior);
+    },
+    [len, scrollToIndex],
+  );
+
+  const go = useCallback(
+    (dir) => {
+      navigateTo(activeRef.current + dir, 'smooth');
+    },
+    [navigateTo],
+  );
+
+  useLayoutEffect(() => {
+    syncEdgePadding();
+    scrollToIndex(0, 'instant');
+    activeRef.current = 0;
+  }, [scrollToIndex, syncEdgePadding]);
 
   useEffect(() => {
-    if (paused) return;
-    const t = setInterval(() => setActive((i) => (i + 1) % SERVICES.length), 4000);
-    return () => clearInterval(t);
-  }, [paused]);
+    const track = trackRef.current;
+    if (!track) return undefined;
 
-  const s = SERVICES[active];
+    const ro = new ResizeObserver(() => {
+      syncEdgePadding();
+      scrollToIndex(activeRef.current, 'instant');
+    });
+    ro.observe(track);
+    return () => ro.disconnect();
+  }, [scrollToIndex, syncEdgePadding]);
 
   return (
-    <div
-      className="max-w-2xl mx-auto"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      <GlassCard className="p-8 text-center mb-6 min-h-[200px] flex flex-col items-center justify-center">
-        <span className="text-5xl mb-3">{s.icon}</span>
-        <h3 className="text-2xl font-bold text-white">{s.name}</h3>
-        <p className="text-white/55 mt-2 max-w-sm">{s.desc}</p>
-        <Link to="/browse" className="mt-4 text-cav-accent font-semibold hover:underline">
-          Explore →
-        </Link>
-      </GlassCard>
-      <div className="flex flex-wrap justify-center gap-3 mb-6">
-        {SERVICES.map((item, i) => (
+    <section className="services-section" aria-labelledby="services-heading">
+      <div className="services-section-inner">
+        <FadeIn>
+          <div className="services-section-header">
+            <p className="trending-section-label">Services</p>
+            <h2 id="services-heading" className="trending-section-title">
+              What CavSulit supports.
+            </h2>
+          </div>
+        </FadeIn>
+
+        <div className="services-carousel-wrap">
           <button
-            key={item.name}
             type="button"
-            onClick={() => setActive(i)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-350 ease-smooth border
-              ${i === active
-                ? 'bg-cav-primary border-cav-primary text-white shadow-glow-green'
-                : 'bg-white/5 border-white/15 text-white/70 hover:border-cav-accent/50'}`}
+            className="services-arrow carousel-arrow"
+            onClick={() => go(-1)}
+            aria-label="Previous service"
           >
-            {item.icon} {item.name}
+            <ChevronLeft size={22} strokeWidth={2.5} aria-hidden />
           </button>
-        ))}
+
+          <div className="services-carousel-viewport">
+            <div className="services-track" ref={trackRef}>
+              <div className="services-track-edge" aria-hidden />
+              {SERVICES.map((service, i) => {
+                const { Icon } = service;
+                const isActive = i === active;
+                return (
+                  <article
+                    key={service.title}
+                    className={`services-card${isActive ? ' is-active' : ''}`}
+                    onClick={() => navigateTo(i)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigateTo(i);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isActive}
+                  >
+                    <span className="services-card-icon" aria-hidden>
+                      <Icon size={28} strokeWidth={2.25} color="#1a1a1a" />
+                    </span>
+                    <h3 className="services-card-title">{service.title}</h3>
+                    <p className="services-card-desc">{service.desc}</p>
+                  </article>
+                );
+              })}
+              <div className="services-track-edge" aria-hidden />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="services-arrow carousel-arrow"
+            onClick={() => go(1)}
+            aria-label="Next service"
+          >
+            <ChevronRight size={22} strokeWidth={2.5} aria-hidden />
+          </button>
+        </div>
       </div>
-      <div className="flex justify-center gap-4">
-        <button
-          type="button"
-          onClick={() => setActive((i) => (i - 1 + SERVICES.length) % SERVICES.length)}
-          className="w-10 h-10 rounded-full border border-white/20 text-white hover:bg-white/10"
-        >
-          ←
-        </button>
-        <button
-          type="button"
-          onClick={() => setActive((i) => (i + 1) % SERVICES.length)}
-          className="w-10 h-10 rounded-full border border-white/20 text-white hover:bg-white/10"
-        >
-          →
-        </button>
-      </div>
-    </div>
+    </section>
   );
+}
+
+/** @deprecated Use ServicesCarousel */
+export function ServicesWheel() {
+  return <ServicesCarousel />;
 }

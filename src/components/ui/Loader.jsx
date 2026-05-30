@@ -40,7 +40,7 @@ export function LoadingScreen({ onDone }) {
             className="text-3xl sm:text-5xl font-extrabold animate-[letterRise_0.5s_cubic-bezier(0.4,0,0.2,1)_forwards] opacity-0"
             style={{
               animationDelay: `${i * 0.08}s`,
-              color: i % 2 === 0 ? 'var(--primary)' : 'var(--text)',
+              color: i % 2 === 0 ? 'var(--green-neon)' : 'var(--text)',
             }}
           >
             {ch}
@@ -51,11 +51,11 @@ export function LoadingScreen({ onDone }) {
       {/* Progress bar */}
       <div
         className="w-40 h-0.5 rounded-full overflow-hidden"
-        style={{ background: 'var(--border)' }}
+        style={{ background: '#1a1a1a' }}
       >
         <div
           className="h-full w-1/3 rounded-full animate-loader-pulse"
-          style={{ background: 'var(--accent)' }}
+          style={{ background: 'var(--green-neon)' }}
         />
       </div>
 

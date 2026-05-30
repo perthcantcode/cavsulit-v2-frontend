@@ -25,12 +25,12 @@ export class ErrorBoundary extends React.Component {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="px-6 py-3 rounded-full bg-[#16a34a] text-white font-semibold hover:shadow-glow-green mb-6"
+            className="btn-primary mb-6"
           >
             Retry
           </button>
           {this.state.error && (
-            <pre className="text-xs rounded-xl p-4 max-w-lg overflow-auto text-left" style={{ color: 'var(--text-muted)', background: 'var(--bg-alt)', border: '1px solid var(--border)' }}>
+            <pre className="text-xs p-4 max-w-lg overflow-auto text-left" style={{ color: 'var(--text-muted)', background: 'var(--bg-alt)', border: '2px solid #1a1a1a', boxShadow: '5px 5px 0px #1a1a1a' }}>
               {this.state.error.message}
             </pre>
           )}

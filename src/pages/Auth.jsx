@@ -18,7 +18,7 @@ function GoogleIcon() {
 function AuthLayout({ title, sub, children }) {
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex flex-col justify-between w-96 [background:var(--primary)] p-10 [color:var(--text)] flex-shrink-0">
+      <div className="hidden lg:flex flex-col justify-between w-96 [background:var(--green-neon)] p-10 [color:var(--text)] flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center">
             <ShoppingBag size={18}/>
@@ -36,12 +36,12 @@ function AuthLayout({ title, sub, children }) {
         <div className="[color:rgba(255,255,255,0.4)] text-xs">© 2026 CavSulit · ITEC Group 3</div>
       </div>
       <div className="flex-1 flex items-center justify-center p-6 [background:var(--bg)]">
-        <div className="w-full max-w-md">
+        <div className="auth-panel">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-xl [background:var(--primary)] flex items-center justify-center"><ShoppingBag size={16} className="[color:var(--text)]"/></div>
-            <span className="font-display font-bold [color:var(--primary)]">CavSulit</span>
+            <div className="w-8 h-8 rounded-none border-[2px] [border-color:#1a1a1a] shadow-[3px_3px_0px_#1a1a1a] [background:var(--green-neon)] flex items-center justify-center"><ShoppingBag size={16} className="[color:var(--text)]"/></div>
+            <span className="font-display font-bold [color:var(--text)]">CavSulit</span>
           </div>
-          <h1 className="font-bold text-2xl mb-1" style={{ color: "var(--text)" }} className="">{title}</h1>
+          <h1 className="font-bold text-2xl mb-1" style={{ color: "var(--text)" }}>{title}</h1>
           <p className="text-sm [color:var(--text-muted)] mb-8">{sub}</p>
           {children}
         </div>
@@ -117,7 +117,7 @@ export function Login() {
         <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-4">
           {error}
           {showResend && (
-            <button onClick={handleResend} className="block mt-2 [color:var(--accent)] font-semibold underline text-xs">
+            <button onClick={handleResend} className="block mt-2 [color:var(--text)] font-semibold underline text-xs">
               Resend verification email
             </button>
           )}
@@ -129,44 +129,58 @@ export function Login() {
         </div>
       )}
 
-      <button onClick={handleGoogle} disabled={googleLoading}
-        className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition mb-4">
-        <GoogleIcon/>
+      <button
+        type="button"
+        onClick={handleGoogle}
+        disabled={googleLoading}
+        className="auth-btn-google"
+      >
+        <GoogleIcon />
         {googleLoading ? 'Signing in...' : 'Continue with Google'}
       </button>
 
-      <div className="flex items-center gap-3 mb-4">
-        <div className="flex-1 h-px bg-gray-200"/>
-        <span className="text-xs text-gray-400">or</span>
-        <div className="flex-1 h-px bg-gray-200"/>
+      <div className="auth-divider">
+        <span>or</span>
       </div>
 
-      <form onSubmit={submit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-bold [color:var(--primary)] mb-1">Email</label>
-          <input value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-            type="email" required placeholder="your@email.com" className="input"/>
+      <form onSubmit={submit} className="auth-form">
+        <div className="auth-field">
+          <label>Email</label>
+          <input
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            type="email"
+            required
+            placeholder="your@email.com"
+            className="input"
+          />
         </div>
-        <div>
-          <label className="block text-xs font-bold [color:var(--primary)] mb-1">Password</label>
-          <div className="relative">
-            <input value={form.password} onChange={e => setForm({...form, password: e.target.value})}
-              type={showPw ? 'text' : 'password'} required placeholder="••••••••" className="input pr-10"/>
-            <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-              {showPw ? <EyeOff size={15}/> : <Eye size={15}/>}
+        <div className="auth-field">
+          <label>Password</label>
+          <div className="auth-field-password">
+            <input
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              type={showPw ? 'text' : 'password'}
+              required
+              placeholder="••••••••"
+              className="input"
+            />
+            <button type="button" onClick={() => setShowPw(!showPw)} aria-label="Toggle password">
+              {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
         </div>
-        <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3">
+        <button type="submit" disabled={loading} className="btn-primary justify-center py-3">
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
       <p className="text-sm text-center mt-4 text-cav-text-muted">
         Didn't receive verification email?{' '}
-        <button onClick={handleResend} className="[color:var(--accent)] font-semibold hover:underline">Resend it</button>
+        <button onClick={handleResend} className="[color:var(--text)] font-semibold hover:underline">Resend it</button>
       </p>
       <p className="text-sm text-center mt-2 text-cav-text-muted">
-        Don't have an account? <Link to="/register" className="[color:var(--accent)] font-semibold hover:underline">Sign Up</Link>
+        Don't have an account? <Link to="/register" className="[color:var(--text)] font-semibold hover:underline">Sign Up</Link>
       </p>
     </AuthLayout>
   );
@@ -213,7 +227,7 @@ export function Register() {
   if (verificationSent) {
     return (
       <AuthLayout title="Check your email" sub="One more step to verify your CvSU account">
-        <div className="[background:rgba(64,145,108,0.08)] border [border-color:var(--border)] [color:var(--accent)] text-sm rounded-xl px-4 py-4 mb-4">
+        <div className="[background:var(--bg-alt)] border-[2px] [border-color:#1a1a1a] [color:var(--text)] text-sm rounded-none px-4 py-4 mb-4 shadow-[5px_5px_0px_#1a1a1a]">
           <p className="font-bold mb-1">📧 Verification email sent!</p>
           <p>We sent a verification link to <strong>{form.email}</strong>. Check your <strong>spam folder</strong> too!</p>
         </div>
@@ -231,56 +245,89 @@ export function Register() {
   return (
     <AuthLayout title="Create account" sub="Join the CavSulit campus community">
       {isCvsu && form.studentId && (
-        <div className="[background:rgba(64,145,108,0.08)] border [border-color:var(--border)] [color:var(--accent)] text-xs rounded-xl px-4 py-3 mb-4 font-semibold">
+        <div className="[background:var(--bg-alt)] border-[2px] [border-color:#1a1a1a] [color:var(--text)] text-xs rounded-none px-4 py-3 mb-4 font-semibold shadow-[5px_5px_0px_#1a1a1a]">
           ✅ CvSU email detected — verify your email to get the CvSU Verified badge!
         </div>
       )}
       {error && <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-4">{error}</div>}
-      <form onSubmit={submit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2">
-            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Full Name *</label>
-            <input value={form.fullName} onChange={e => setForm({...form, fullName: e.target.value})}
-              required placeholder="Juan dela Cruz" className="input"/>
-          </div>
-          <div className="col-span-2">
-            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Email *</label>
-            <input value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-              type="email" required placeholder="Use @cvsu.edu.ph for verification" className="input"/>
-          </div>
-          <div className="col-span-2">
-            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Password *</label>
-            <div className="relative">
-              <input value={form.password} onChange={e => setForm({...form, password: e.target.value})}
-                type={showPw ? 'text' : 'password'} required placeholder="Min. 6 characters" className="input pr-10"/>
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                {showPw ? <EyeOff size={15}/> : <Eye size={15}/>}
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Student ID</label>
-            <input value={form.studentId} onChange={e => setForm({...form, studentId: e.target.value})}
-              placeholder="251XXXXXX" className="input"/>
-          </div>
-          <div>
-            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Department</label>
-            <select value={form.department} onChange={e => setForm({...form, department: e.target.value})} className="input">
-              {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </div>
-          <div className="col-span-2">
-            <label className="block text-xs font-bold [color:var(--primary)] mb-1">Contact Number</label>
-            <input value={form.contactNumber} onChange={e => setForm({...form, contactNumber: e.target.value})}
-              placeholder="09XX XXX XXXX" className="input"/>
+      <form onSubmit={submit} className="auth-form">
+        <div className="auth-field">
+          <label>Full Name *</label>
+          <input
+            value={form.fullName}
+            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+            required
+            placeholder="Juan dela Cruz"
+            className="input"
+          />
+        </div>
+        <div className="auth-field">
+          <label>Email *</label>
+          <input
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            type="email"
+            required
+            placeholder="Use @cvsu.edu.ph for verification"
+            className="input"
+          />
+        </div>
+        <div className="auth-field">
+          <label>Password *</label>
+          <div className="auth-field-password">
+            <input
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              type={showPw ? 'text' : 'password'}
+              required
+              placeholder="Min. 6 characters"
+              className="input"
+            />
+            <button type="button" onClick={() => setShowPw(!showPw)} aria-label="Toggle password">
+              {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
           </div>
         </div>
-        <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3">
+        <div className="auth-grid-2">
+          <div className="auth-field">
+            <label>Student ID</label>
+            <input
+              value={form.studentId}
+              onChange={(e) => setForm({ ...form, studentId: e.target.value })}
+              placeholder="251XXXXXX"
+              className="input"
+            />
+          </div>
+          <div className="auth-field">
+            <label>Department</label>
+            <select
+              value={form.department}
+              onChange={(e) => setForm({ ...form, department: e.target.value })}
+              className="input"
+            >
+              {DEPARTMENTS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="auth-field">
+          <label>Contact Number</label>
+          <input
+            value={form.contactNumber}
+            onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
+            placeholder="09XX XXX XXXX"
+            className="input"
+          />
+        </div>
+        <button type="submit" disabled={loading} className="btn-primary justify-center py-3">
           {loading ? 'Creating account...' : 'Create Account'}
         </button>
       </form>
       <p className="text-sm text-center mt-6 text-cav-text-muted">
-        Already have an account? <Link to="/login" className="[color:var(--accent)] font-semibold hover:underline">Sign In</Link>
+        Already have an account? <Link to="/login" className="[color:var(--text)] font-semibold hover:underline">Sign In</Link>
       </p>
     </AuthLayout>
   );

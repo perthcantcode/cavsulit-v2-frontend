@@ -22,7 +22,7 @@ const NotFound      = lazy(() => import('./pages/NotFound').then(m => ({ default
 
 const PageLoader = () => (
   <div className="min-h-[50vh] flex items-center justify-center [background:var(--bg)]">
-    <div className="w-8 h-8 border-4 [border-color:var(--accent)] border-t-transparent rounded-full animate-spin"/>
+    <div className="w-8 h-8 border-4 [border-color:#1a1a1a] border-t-transparent rounded-full animate-spin"/>
   </div>
 );
 

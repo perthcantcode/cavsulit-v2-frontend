@@ -3,7 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import api from '../utils/api';
 import { ShopCard } from '../components/ShopCard';
-import { CATEGORIES, COLLEGES, CAT_ICONS } from '../utils/helpers';
+import { EmptyStateIcon } from '../components/EmptyStateIcon';
+import { CATEGORIES, COLLEGES } from '../utils/helpers';
+import { CategoryIcon, formatCategory } from '../components/CategoryIcon';
 import { useAuth } from '../context/AuthContext';
 
 export function Browse() {
@@ -81,14 +83,14 @@ export function Browse() {
         </div>
       </div>
 
-      <div className="flex gap-1 [background:var(--bg-alt)] rounded-xl p-1 w-fit mb-4 border [border-color:var(--border)]">
+      <div className="flex gap-1 [background:var(--bg-alt)] rounded-none p-1 w-fit mb-4 border-[2px] [border-color:#1a1a1a]">
         {['product', 'college'].map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-350
-              ${tab === t ? '[background:var(--primary)] text-white' : '[color:var(--text-muted)] hover:[color:var(--text)]'}`}
+              ${tab === t ? '[background:var(--green-neon)] [color:var(--text)]' : '[color:var(--text-muted)] hover:[color:var(--text)]'}`}
           >
             By {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
@@ -99,8 +101,9 @@ export function Browse() {
         <div className="flex flex-wrap gap-2 mb-6">
           <button type="button" onClick={() => setCategory('all')} className={`pill ${category === 'all' ? 'pill-active' : 'pill-inactive'}`}>All</button>
           {CATEGORIES.map((c) => (
-            <button key={c} type="button" onClick={() => setCategory(c)} className={`pill ${category === c ? 'pill-active' : 'pill-inactive'}`}>
-              {CAT_ICONS[c]} {c.replace('_', ' ')}
+            <button key={c} type="button" onClick={() => setCategory(c)} className={`pill pill-icon ${category === c ? 'pill-active' : 'pill-inactive'}`}>
+              <CategoryIcon category={c} size={14} />
+              {formatCategory(c)}
             </button>
           ))}
         </div>
@@ -116,17 +119,17 @@ export function Browse() {
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-56 rounded-2xl [background:var(--bg-alt)] animate-pulse border [border-color:var(--border)]" />
+            <div key={i} className="h-56 rounded-none [background:var(--bg-alt)] animate-pulse border-[2px] [border-color:#1a1a1a]" />
           ))}
         </div>
       ) : shops.length === 0 ? (
         <div className="text-center py-20 card">
-          <div className="text-5xl mb-4">🔍</div>
+          <EmptyStateIcon icon={Search} />
           <div className="font-semibold [color:var(--text)]">No shops found</div>
           <div className="text-sm mt-1 [color:var(--text-muted)]">Try a different filter or search term</div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 items-stretch">
           {shops.map((s) => (
             <ShopCard key={s.id} shop={s} saved={saved.has(s.id)} onSaveToggle={handleSaveToggle} />
           ))}

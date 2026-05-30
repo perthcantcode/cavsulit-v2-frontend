@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, Save, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { Camera, Save, ExternalLink } from 'lucide-react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { badgeLabel, DEPARTMENTS } from '../utils/helpers';
+import { badgeLabel, DEPARTMENTS, maskSensitive } from '../utils/helpers';
+import { PrivacyToggle } from '../components/PrivacyToggle';
+import { Avatar } from '../components/Avatar';
 
 export function Profile() {
   const { user, updateUser } = useAuth();
@@ -17,9 +19,10 @@ export function Profile() {
     socialLinks: {
       facebook:  user?.socialLinks?.facebook  || '',
       instagram: user?.socialLinks?.instagram || '',
-      messenger: user?.socialLinks?.messenger || '',
+      x:         user?.socialLinks?.x || user?.socialLinks?.twitter || '',
     },
     showContact: user?.showContact ?? true,
+    showStudentId: user?.showStudentId ?? false,
   });
 
   const [saving,        setSaving]        = useState(false);
@@ -89,12 +92,7 @@ export function Profile() {
         <div className="flex items-center gap-4">
           {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <div className="w-20 h-20 rounded-2xl overflow-hidden bg-cav-green flex items-center justify-center">
-              {user.profilePhoto
-                ? <img src={user.profilePhoto} alt={user.fullName} className="w-full h-full object-cover"/>
-                : <span className="[color:var(--text)] font-bold text-3xl">{user.fullName?.[0] || 'U'}</span>
-              }
-            </div>
+            <Avatar user={user} size={80} className="profile-page-avatar" />
             <button
               onClick={() => fileRef.current?.click()}
               disabled={uploadingPhoto}
@@ -127,61 +125,122 @@ export function Profile() {
 
         {/* ── Basic Info ───────────────────────────────────────────────────── */}
         <div className="card p-6 space-y-4">
-          <h2 className="font-display font-bold text-base text-cav-green-dark border-b border-gray-100 pb-2">Basic Info</h2>
+          <h2 className="font-display font-bold text-base text-cav-green-dark border-b border-gray-100 pb-2 m-0">
+            Basic Info
+          </h2>
 
-          <div>
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Full Name</label>
-            <input value={form.fullName}
-              onChange={e => setForm({...form, fullName: e.target.value})}
-              className="input"/>
+          <div className="form-field">
+            <label className="form-label" htmlFor="profile-name">
+              Full name
+            </label>
+            <input
+              id="profile-name"
+              value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+              className="input"
+            />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-cav-green-dark mb-1">Department</label>
-              <select value={form.department}
-                onChange={e => setForm({...form, department: e.target.value})}
-                className="input">
-                {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+          <div className="form-grid-2">
+            <div className="form-field">
+              <label className="form-label" htmlFor="profile-dept">
+                Department
+              </label>
+              <select
+                id="profile-dept"
+                value={form.department}
+                onChange={(e) => setForm({ ...form, department: e.target.value })}
+                className="input"
+              >
+                {DEPARTMENTS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
               </select>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-cav-green-dark mb-1 flex items-center gap-1">
-                Contact Number
-                <button type="button"
-                  onClick={() => setForm({...form, showContact: !form.showContact})}
-                  className="ml-auto text-cav-text-muted hover:text-cav-green"
-                  title={form.showContact ? 'Visible to buyers' : 'Hidden from buyers'}>
-                  {form.showContact ? <Eye size={12}/> : <EyeOff size={12}/>}
-                </button>
+            <div className="form-field">
+              <label className="form-label" htmlFor="profile-contact">
+                Contact number
               </label>
-              <input value={form.contactNumber}
-                onChange={e => setForm({...form, contactNumber: e.target.value})}
-                placeholder="09XX XXX XXXX" className="input"/>
-              <p className="text-[10px] text-cav-text-muted mt-1">
-                {form.showContact ? '👁 Visible on shop page' : '🔒 Hidden from buyers'}
-              </p>
+              <input
+                id="profile-contact"
+                value={form.contactNumber}
+                onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
+                placeholder="09XX XXX XXXX"
+                className="input"
+              />
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-cav-green-dark mb-1">Bio</label>
-            <textarea value={form.bio}
-              onChange={e => setForm({...form, bio: e.target.value})}
+          {user.studentId && (
+            <div className="form-field">
+              <span className="form-label">Student ID</span>
+              <p className="form-readonly-value m-0">
+                {form.showStudentId ? user.studentId : maskSensitive(user.studentId)}
+              </p>
+            </div>
+          )}
+
+          <div className="form-field form-field--textarea">
+            <label className="form-label" htmlFor="profile-bio">
+              Bio
+            </label>
+            <textarea
+              id="profile-bio"
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
               placeholder="Tell buyers a bit about yourself and your shop..."
-              rows={3} className="input resize-none"/>
+              rows={3}
+              className="input resize-none"
+            />
           </div>
+        </div>
+
+        {/* ── Privacy ──────────────────────────────────────────────────────── */}
+        <div className="card p-6 space-y-3">
+          <h2 className="font-display font-bold text-base text-cav-green-dark border-b border-gray-100 pb-2 m-0">
+            Privacy
+          </h2>
+          <p className="text-xs text-cav-text-muted m-0">
+            Control your personal phone number and student ID. GCash numbers and QR codes on listings always
+            show in full so buyers can pay.
+          </p>
+          <PrivacyToggle
+            checked={form.showContact}
+            onChange={(showContact) => setForm({ ...form, showContact })}
+            label="Show phone number on shop pages"
+            hint={
+              form.showContact && form.contactNumber
+                ? `Buyers see: ${maskSensitive(form.contactNumber)}`
+                : 'Phone number is hidden on shop pages'
+            }
+          />
+          {user.studentId && (
+            <PrivacyToggle
+              checked={form.showStudentId}
+              onChange={(showStudentId) => setForm({ ...form, showStudentId })}
+              label="Show full student ID on profile"
+              hint={
+                form.showStudentId
+                  ? 'Full ID visible on your profile only'
+                  : `Profile shows: ${maskSensitive(user.studentId)}`
+              }
+            />
+          )}
         </div>
 
         {/* ── Social Links ─────────────────────────────────────────────────── */}
         <div className="card p-6 space-y-4">
           <h2 className="font-display font-bold text-base text-cav-green-dark border-b border-gray-100 pb-2">Social Links</h2>
-          <p className="text-xs text-cav-text-muted">These appear on your shop page so buyers can reach you.</p>
+          <p className="text-xs text-cav-text-muted m-0">
+            Add links shown on your shop page seller card (Facebook, Instagram, X).
+          </p>
 
           {[
             { key: 'facebook',  label: 'Facebook',  placeholder: 'https://facebook.com/yourname' },
-            { key: 'instagram', label: 'Instagram',  placeholder: 'https://instagram.com/yourhandle' },
-            { key: 'messenger', label: 'Messenger',  placeholder: 'https://m.me/yourname' },
+            { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/yourhandle' },
+            { key: 'x',         label: 'X (Twitter)', placeholder: 'https://x.com/yourhandle' },
           ].map(({ key, label, placeholder }) => (
             <div key={key}>
               <label className="block text-xs font-bold text-cav-green-dark mb-1">{label}</label>
