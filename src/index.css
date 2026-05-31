@@ -13,6 +13,7 @@
 
   --green-neon:   #3fff00;
   --green-forest: #3ca305;
+  --green-auth-panel: #9ed62a; /* olive-lime — auth sidebar; readable with black text */
   --yellow:       #ffe600;
   --highlighter:  #ccff00;
 
@@ -899,6 +900,51 @@ html { scroll-behavior: smooth; }
   }
 
   /* ── Auth pages ── */
+  .auth-aside {
+    background: var(--green-auth-panel);
+    color: var(--text);
+    border-right: 3px solid #1a1a1a;
+  }
+
+  .auth-aside-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .auth-aside-brand-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(26, 26, 26, 0.06);
+    border: 2px solid #1a1a1a;
+    box-shadow: 2px 2px 0 #1a1a1a;
+  }
+
+  .auth-aside-quote {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .auth-aside-desc {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--text);
+    opacity: 0.9;
+    max-width: 20rem;
+  }
+
+  .auth-aside-footer {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
   .auth-panel {
     width: 100%;
     max-width: 26rem;
@@ -3830,7 +3876,10 @@ html { scroll-behavior: smooth; }
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
-  background: var(--green-neon);
+  line-height: 1;
+  text-align: center;
+  background: var(--green-auth-panel);
+  color: var(--text);
   border: 3px solid #1a1a1a;
   box-shadow: 4px 4px 0 #1a1a1a;
 }
@@ -4040,10 +4089,27 @@ html { scroll-behavior: smooth; }
 .avatar--initials {
   border-radius: 50%;
   background: #e0e5d4;
-  color: #555555;
+  color: var(--text);
   font-weight: 700;
   font-family: 'Space Grotesk', sans-serif;
   line-height: 1;
+  padding: 0;
+  overflow: hidden;
+  aspect-ratio: 1;
+}
+
+.avatar--initials .avatar__initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  font-size: 1em;
+  font-weight: 700;
+  text-align: center;
 }
 
 /* ── Shop logo (per listing) ───────────────────────────────────────────────── */
@@ -5414,9 +5480,8 @@ html { scroll-behavior: smooth; }
 }
 
 .messages-convo-avatar.avatar--initials {
-  background: var(--green-neon);
+  background: var(--green-auth-panel);
   color: var(--text);
-  font-size: 0.875rem;
   box-shadow: 2px 2px 0 #1a1a1a;
 }
 

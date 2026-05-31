@@ -9,7 +9,8 @@ export function Avatar({ user, name, photo, size = 36, className = '' }) {
   const src = photo ?? user?.profilePhoto;
   const imgSrc = src ? photoUrl(src) : null;
   const px = typeof size === 'number' ? size : 36;
-  const style = { width: px, height: px, fontSize: Math.round(px * 0.4) };
+  const letterSize = Math.round(px * 0.42);
+  const style = { width: px, height: px, fontSize: letterSize };
 
   if (imgSrc) {
     return (
@@ -28,7 +29,9 @@ export function Avatar({ user, name, photo, size = 36, className = '' }) {
       style={style}
       aria-label={displayName || 'User'}
     >
-      {displayName?.[0]?.toUpperCase() || '?'}
+      <span className="avatar__initial" aria-hidden="true">
+        {displayName?.[0]?.toUpperCase() || '?'}
+      </span>
     </span>
   );
 }

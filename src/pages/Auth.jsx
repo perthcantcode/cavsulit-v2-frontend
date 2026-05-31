@@ -18,22 +18,20 @@ function GoogleIcon() {
 function AuthLayout({ title, sub, children }) {
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex flex-col justify-between w-96 [background:var(--green-neon)] p-10 [color:var(--text)] flex-shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center">
-            <ShoppingBag size={18}/>
+      <div className="hidden lg:flex flex-col justify-between w-96 auth-aside p-10 flex-shrink-0">
+        <div className="auth-aside-brand">
+          <div className="auth-aside-brand-icon">
+            <ShoppingBag size={18} strokeWidth={2.25} />
           </div>
           <span className="font-display font-bold text-lg">CavSulit</span>
         </div>
         <div>
-          <div className="text-3xl font-display font-bold leading-tight mb-4">
-            "Your hustle deserves to be seen."
-          </div>
-          <p className="[color:rgba(255,255,255,0.7)] text-sm leading-relaxed">
+          <p className="auth-aside-quote">&ldquo;Your hustle deserves to be seen.&rdquo;</p>
+          <p className="auth-aside-desc">
             CavSulit is a free campus marketplace for students, instructors, and every member of the CvSU community.
           </p>
         </div>
-        <div className="[color:rgba(255,255,255,0.4)] text-xs">© 2026 CavSulit · ITEC Group 3</div>
+        <p className="auth-aside-footer">&copy; 2026 CavSulit &middot; ITEC Group 3</p>
       </div>
       <div className="flex-1 flex items-center justify-center p-6 [background:var(--bg)]">
         <div className="auth-panel">
