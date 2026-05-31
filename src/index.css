@@ -4852,25 +4852,15 @@ html { scroll-behavior: smooth; }
 }
 
 .badge-level-card--cvsu.is-current {
-  box-shadow: 6px 6px 0 var(--green-neon);
-}
-
-.badge-level-card--trusted {
-  background: var(--badge-trusted);
-  color: var(--text);
+  box-shadow: 5px 5px 0 #1a1a1a;
 }
 
 .badge-level-card--trusted.is-current {
-  box-shadow: 6px 6px 0 var(--badge-trusted);
-}
-
-.badge-level-card--top {
-  background: var(--badge-top);
-  color: var(--text);
+  box-shadow: 5px 5px 0 #1a1a1a;
 }
 
 .badge-level-card--top.is-current {
-  box-shadow: 6px 6px 0 var(--badge-top);
+  box-shadow: 5px 5px 0 #1a1a1a;
 }
 
 .badge-level-card .flex-1 > p {
@@ -4902,7 +4892,7 @@ html { scroll-behavior: smooth; }
 .badge-level-card--top .badge-level-icon {
   background: #1a1a1a;
   color: var(--badge-top);
-  box-shadow: 4px 4px 0 var(--green-neon);
+  box-shadow: 4px 4px 0 #1a1a1a;
 }
 
 .badge-level-pill {
