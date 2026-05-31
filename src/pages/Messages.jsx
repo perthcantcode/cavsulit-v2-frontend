@@ -361,21 +361,26 @@ export function Messages() {
                   className="input"
                 />
                 <div className="messages-preorder-grid">
-                  <div className="form-field m-0">
-                    <label className="form-label text-xs">Pickup date &amp; time</label>
+                  <div className="messages-preorder-field">
+                    <label htmlFor="preorder-time">Pickup date &amp; time</label>
                     <input
+                      id="preorder-time"
                       type="datetime-local"
                       value={preTime}
                       onChange={(e) => setPreTime(e.target.value)}
                       className="input"
                     />
                   </div>
-                  <input
-                    value={preLoc}
-                    onChange={(e) => setPreLoc(e.target.value)}
-                    placeholder="Pickup location"
-                    className="input"
-                  />
+                  <div className="messages-preorder-field">
+                    <label htmlFor="preorder-location">Pickup location</label>
+                    <input
+                      id="preorder-location"
+                      value={preLoc}
+                      onChange={(e) => setPreLoc(e.target.value)}
+                      placeholder="Near gate 1, CEIT..."
+                      className="input"
+                    />
+                  </div>
                 </div>
                 <button
                   type="button"
