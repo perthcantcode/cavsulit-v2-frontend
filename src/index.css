@@ -16,6 +16,8 @@
   --green-auth-accent: var(--green-neon); /* auth sign-in button — same as site */
   --yellow:       #ffe600;
   --highlighter:  #ccff00;
+  --badge-trusted: #c4ff33; /* chartreuse — between neon green and yellow */
+  --badge-top:    #ffe600;  /* vivid yellow — highest tier */
 
   --border:       3px solid #1a1a1a;
   --border-thin:  2px solid #1a1a1a;
@@ -200,7 +202,7 @@ html { scroll-behavior: smooth; }
     font-size: 12px;
     padding: 4px 10px;
     color: #1a1a1a;
-    background: #ffd400;
+    background: var(--badge-top);
     border: var(--border-thin);
     border-radius: 0;
     box-shadow: 3px 3px 0px #1a1a1a;
@@ -215,7 +217,7 @@ html { scroll-behavior: smooth; }
     font-size: 12px;
     padding: 4px 10px;
     color: #1a1a1a;
-    background: #9ae829;
+    background: var(--badge-trusted);
     border: var(--border-thin);
     border-radius: 0;
     box-shadow: 3px 3px 0px #1a1a1a;
@@ -824,6 +826,21 @@ html { scroll-behavior: smooth; }
     background: var(--bg-alt);
     border: 2px solid #1a1a1a;
     box-shadow: 3px 3px 0 #1a1a1a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  }
+
+  .form-privacy-toggle:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 #1a1a1a;
+  }
+
+  .form-privacy-toggle:has(input:checked) {
+    background: var(--green-neon);
+  }
+
+  .form-privacy-toggle:has(input:checked) .form-privacy-toggle-box {
+    background: #1a1a1a;
+    color: var(--green-neon);
   }
 
   .form-privacy-toggle input {
@@ -4802,16 +4819,18 @@ html { scroll-behavior: smooth; }
   padding: 0.55rem 0.75rem;
 }
 
-/* Badge levels page */
+/* Badge levels page — flat neo-brut fills, no gradients */
 .badge-user-banner {
-  background: linear-gradient(135deg, #e8ffe0 0%, #f5fff0 100%);
+  background: var(--bg-alt);
   border: 3px solid #1a1a1a;
+  box-shadow: 5px 5px 0 #1a1a1a;
 }
 
 .badge-user-hint {
   padding: 0.65rem 0.75rem;
   border: 2px solid #1a1a1a;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--surface);
+  box-shadow: 3px 3px 0 #1a1a1a;
 }
 
 .badge-level-card {
@@ -4820,31 +4839,43 @@ html { scroll-behavior: smooth; }
 }
 
 .badge-level-card.is-current {
-  outline: 3px solid var(--green-neon);
-  outline-offset: 2px;
+  outline: 3px solid #1a1a1a;
+  outline-offset: 3px;
 }
 
 .badge-level-card--cvsu {
-  background: linear-gradient(135deg, #e8ffd4 0%, #f8fff2 55%, #ffffff 100%);
-  border-left: 6px solid #3fff00;
+  background: var(--green-neon);
+  color: var(--text);
+}
+
+.badge-level-card--cvsu.is-current {
+  outline-color: var(--green-neon);
+  box-shadow: 7px 7px 0 #1a1a1a;
 }
 
 .badge-level-card--trusted {
-  background: linear-gradient(135deg, #daf96c 0%, #edffc4 50%, #ffffff 100%);
-  border-left: 6px solid #7bc41a;
+  background: var(--badge-trusted);
+  color: var(--text);
 }
 
 .badge-level-card--trusted.is-current {
-  outline-color: #9ae829;
+  outline-color: var(--badge-trusted);
+  box-shadow: 7px 7px 0 #1a1a1a;
 }
 
 .badge-level-card--top {
-  background: linear-gradient(135deg, #ffe566 0%, #fff9c4 50%, #ffffff 100%);
-  border-left: 6px solid #f5c400;
+  background: var(--badge-top);
+  color: var(--text);
 }
 
 .badge-level-card--top.is-current {
-  outline-color: #ffd400;
+  outline-color: var(--badge-top);
+  box-shadow: 7px 7px 0 #1a1a1a;
+}
+
+.badge-level-card .flex-1 > p {
+  color: #1a1a1a;
+  opacity: 0.88;
 }
 
 .badge-level-icon {
@@ -4854,23 +4885,24 @@ html { scroll-behavior: smooth; }
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #1a1a1a;
-  box-shadow: 3px 3px 0 #1a1a1a;
+  border: 3px solid #1a1a1a;
+  box-shadow: 4px 4px 0 #1a1a1a;
+  background: var(--surface);
+  color: #1a1a1a;
 }
 
 .badge-level-card--cvsu .badge-level-icon {
-  background: #3fff00;
-  color: #1a1a1a;
+  background: var(--surface);
 }
 
 .badge-level-card--trusted .badge-level-icon {
-  background: #9ae829;
-  color: #1a1a1a;
+  background: var(--surface);
 }
 
 .badge-level-card--top .badge-level-icon {
-  background: #ffd400;
-  color: #1a1a1a;
+  background: #1a1a1a;
+  color: var(--badge-top);
+  box-shadow: 4px 4px 0 var(--green-neon);
 }
 
 .badge-level-pill {
@@ -4880,16 +4912,32 @@ html { scroll-behavior: smooth; }
   letter-spacing: 0.04em;
   padding: 0.2rem 0.5rem;
   border: 2px solid #1a1a1a;
+  box-shadow: 2px 2px 0 #1a1a1a;
 }
 
 .badge-level-pill--current {
-  background: var(--green-neon);
-  color: var(--text);
+  background: #1a1a1a;
+  color: var(--surface);
+}
+
+.badge-level-card--cvsu .badge-level-pill--current {
+  background: #1a1a1a;
+  color: var(--green-neon);
+}
+
+.badge-level-card--trusted .badge-level-pill--current {
+  background: #1a1a1a;
+  color: var(--badge-trusted);
+}
+
+.badge-level-card--top .badge-level-pill--current {
+  background: #1a1a1a;
+  color: var(--badge-top);
 }
 
 .badge-level-pill--done {
-  background: #e8ffe0;
-  color: #2d5016;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .badge-level-pill--muted {
@@ -4909,11 +4957,11 @@ html { scroll-behavior: smooth; }
   align-items: flex-start;
   gap: 0.5rem;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: rgba(26, 26, 26, 0.75);
 }
 
 .badge-criteria-list li.is-met {
-  color: var(--text);
+  color: #1a1a1a;
   font-weight: 600;
 }
 
@@ -4927,11 +4975,141 @@ html { scroll-behavior: smooth; }
   font-size: 0.65rem;
   font-weight: 700;
   border: 2px solid #1a1a1a;
-  background: var(--bg-alt);
+  background: var(--surface);
+  box-shadow: 2px 2px 0 #1a1a1a;
 }
 
-.badge-criteria-list li.is-met .badge-criteria-mark {
+.badge-level-card--cvsu .badge-criteria-list li.is-met .badge-criteria-mark {
+  background: var(--surface);
+}
+
+.badge-level-card--trusted .badge-criteria-list li.is-met .badge-criteria-mark {
+  background: var(--surface);
+}
+
+.badge-level-card--top .badge-criteria-list li.is-met .badge-criteria-mark {
+  background: #1a1a1a;
+  color: var(--badge-top);
+}
+
+/* ── Profile page ── */
+.profile-section {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.profile-section--hero {
+  border-top: 5px solid var(--green-neon);
+}
+
+.profile-section--hero:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--green-neon);
+}
+
+.profile-section--basic {
+  border-left: 6px solid var(--green-neon);
+}
+
+.profile-section--basic:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--green-neon);
+}
+
+.profile-section--basic .input:focus {
+  box-shadow: 4px 4px 0 var(--green-neon);
+}
+
+.profile-section--privacy {
+  border-left: 6px solid var(--badge-trusted);
+}
+
+.profile-section--privacy:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--badge-trusted);
+}
+
+.profile-section--privacy .form-privacy-toggle:hover {
+  box-shadow: 5px 5px 0 var(--badge-trusted);
+}
+
+.profile-section--privacy .form-privacy-toggle:has(input:checked) {
+  background: var(--badge-trusted);
+}
+
+.profile-section--privacy .form-privacy-toggle:has(input:checked) .form-privacy-toggle-box {
+  background: #1a1a1a;
+  color: var(--badge-trusted);
+}
+
+.profile-section--social {
+  border-left: 6px solid var(--badge-top);
+}
+
+.profile-section--social:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--badge-top);
+}
+
+.profile-section--social .input:focus {
+  box-shadow: 4px 4px 0 var(--badge-top);
+}
+
+.profile-section-title {
+  margin: 0 0 0.75rem;
+  padding: 0 0 0.5rem 0.65rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  border-left: 4px solid var(--green-neon);
+  border-bottom: 3px solid #1a1a1a;
+}
+
+.profile-section--privacy .profile-section-title {
+  border-left-color: var(--badge-trusted);
+}
+
+.profile-section--social .profile-section-title {
+  border-left-color: var(--badge-top);
+}
+
+.profile-alert {
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  border: 2px solid #1a1a1a;
+  box-shadow: 3px 3px 0 #1a1a1a;
+}
+
+.profile-alert--success {
   background: var(--green-neon);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.profile-alert--error {
+  background: #ffe8e8;
+  color: #7f1d1d;
+  font-weight: 600;
+}
+
+.profile-camera-btn {
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+  background: var(--green-neon);
+  color: var(--text);
+  box-shadow: 2px 2px 0 #1a1a1a;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.profile-camera-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #1a1a1a;
+}
+
+.profile-camera-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .shop-info-actions {

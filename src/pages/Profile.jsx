@@ -84,19 +84,21 @@ export function Profile() {
         <p className="text-sm text-cav-text-muted mt-1">Manage your public profile and account settings.</p>
       </div>
 
-      {error   && <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-4">{error}</div>}
-      {success && <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 mb-4">✅ Profile updated!</div>}
+      {error   && <div className="profile-alert profile-alert--error mb-4">{error}</div>}
+      {success && <div className="profile-alert profile-alert--success mb-4">Profile updated!</div>}
 
       {/* ── Profile Card ─────────────────────────────────────────────────── */}
-      <div className="card p-6 mb-6">
+      <div className="card profile-section profile-section--hero p-6 mb-6">
         <div className="flex items-center gap-4">
           {/* Avatar */}
           <div className="relative flex-shrink-0">
             <Avatar user={user} size={80} className="profile-page-avatar" />
             <button
+              type="button"
               onClick={() => fileRef.current?.click()}
               disabled={uploadingPhoto}
-              className="absolute -bottom-1 -right-1 w-7 h-7 bg-cav-green [color:var(--text)] rounded-full flex items-center justify-center shadow-md hover:bg-cav-green-dark transition-colors">
+              className="profile-camera-btn absolute -bottom-1 -right-1 w-7 h-7 flex items-center justify-center"
+            >
               {uploadingPhoto
                 ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"/>
                 : <Camera size={13}/>
@@ -124,10 +126,8 @@ export function Profile() {
       <form onSubmit={handleSave} className="space-y-5">
 
         {/* ── Basic Info ───────────────────────────────────────────────────── */}
-        <div className="card p-6 space-y-4">
-          <h2 className="font-display font-bold text-base text-cav-green-dark border-b border-gray-100 pb-2 m-0">
-            Basic Info
-          </h2>
+        <div className="card profile-section profile-section--basic p-6 space-y-4">
+          <h2 className="profile-section-title">Basic Info</h2>
 
           <div className="form-field">
             <label className="form-label" htmlFor="profile-name">
@@ -198,10 +198,8 @@ export function Profile() {
         </div>
 
         {/* ── Privacy ──────────────────────────────────────────────────────── */}
-        <div className="card p-6 space-y-3">
-          <h2 className="font-display font-bold text-base text-cav-green-dark border-b border-gray-100 pb-2 m-0">
-            Privacy
-          </h2>
+        <div className="card profile-section profile-section--privacy p-6 space-y-3">
+          <h2 className="profile-section-title">Privacy</h2>
           <p className="text-xs text-cav-text-muted m-0">
             Control your personal phone number and student ID. GCash numbers and QR codes on listings always
             show in full so buyers can pay.
@@ -231,8 +229,8 @@ export function Profile() {
         </div>
 
         {/* ── Social Links ─────────────────────────────────────────────────── */}
-        <div className="card p-6 space-y-4">
-          <h2 className="font-display font-bold text-base text-cav-green-dark border-b border-gray-100 pb-2">Social Links</h2>
+        <div className="card profile-section profile-section--social p-6 space-y-4">
+          <h2 className="profile-section-title">Social Links</h2>
           <p className="text-xs text-cav-text-muted m-0">
             Add links shown on your shop page seller card (Facebook, Instagram, X).
           </p>
