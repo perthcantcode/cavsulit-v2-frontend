@@ -13,8 +13,7 @@
 
   --green-neon:   #3fff00;
   --green-forest: #3ca305;
-  --green-auth-panel: #3fff00; /* neon-adjacent — auth sidebar, black text stays readable */
-  --green-auth-accent: var(--green-neon); /* matches site buttons */
+  --green-auth-accent: var(--green-neon); /* auth sign-in button — same as site */
   --yellow:       #ffe600;
   --highlighter:  #ccff00;
 
@@ -912,6 +911,8 @@ html { scroll-behavior: smooth; }
     display: flex;
     align-items: center;
     gap: 0.625rem;
+    font-weight: 800;
+    color: #1a1a1a;
   }
 
   .auth-aside-brand-icon {
@@ -946,7 +947,9 @@ html { scroll-behavior: smooth; }
 
   .auth-aside-footer {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    font-weight: 700;
+    color: #1a1a1a;
+    opacity: 1;
   }
 
   .auth-panel {
@@ -4107,7 +4110,7 @@ html { scroll-behavior: smooth; }
   line-height: 1;
   padding: 0;
   overflow: hidden;
-  aspect-ratio: 1;Z
+  aspect-ratio: 1;
 }
 
 .avatar--initials .avatar__initial {
@@ -4120,7 +4123,8 @@ html { scroll-behavior: smooth; }
   margin: 0;
   padding: 0;
   font-size: 1em;
-  font-weight: 700;
+  font-weight: 800;
+  color: #1a1a1a;
   text-align: center;
 }
 
@@ -5491,15 +5495,12 @@ html { scroll-behavior: smooth; }
   flex-shrink: 0;
 }
 
-.messages-convo-avatar.avatar--initials {
+.messages-convo-avatar.avatar--initials,
+.cav-nav-profile-btn .avatar--initials,
+.profile-page-avatar.avatar--initials {
   background: var(--green-neon);
-  color: var(--text);
+  color: #1a1a1a;
   box-shadow: 2px 2px 0 #1a1a1a;
-}
-
-.cav-nav-profile-btn .avatar--initials {
-  background: var(--green-neon);
-  color: var(--text);
 }
 
 .messages-convo-body {
