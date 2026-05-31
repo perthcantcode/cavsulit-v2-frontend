@@ -16,7 +16,7 @@
   --green-auth-accent: var(--green-neon); /* auth sign-in button — same as site */
   --yellow:       #ffe600;
   --highlighter:  #ccff00;
-  --badge-trusted: #c4ff33; /* chartreuse — between neon green and yellow */
+  --badge-trusted: var(--highlighter); /* #ccff00 — matches My Shop nav hover */
   --badge-top:    #ffe600;  /* vivid yellow — highest tier */
 
   --border:       3px solid #1a1a1a;
@@ -141,6 +141,10 @@ html { scroll-behavior: smooth; }
   .card:hover {
     transform: translate(-3px, -3px);
     box-shadow: var(--shadow-hover);
+  }
+
+  .card.profile-section:hover {
+    transform: translate(-2px, -2px);
   }
 
   /* Glass — keep blur usage to navbar inline styles */
@@ -4839,8 +4843,7 @@ html { scroll-behavior: smooth; }
 }
 
 .badge-level-card.is-current {
-  outline: 3px solid #1a1a1a;
-  outline-offset: 3px;
+  outline: none;
 }
 
 .badge-level-card--cvsu {
@@ -4849,8 +4852,7 @@ html { scroll-behavior: smooth; }
 }
 
 .badge-level-card--cvsu.is-current {
-  outline-color: var(--green-neon);
-  box-shadow: 7px 7px 0 #1a1a1a;
+  box-shadow: 6px 6px 0 var(--green-neon);
 }
 
 .badge-level-card--trusted {
@@ -4859,8 +4861,7 @@ html { scroll-behavior: smooth; }
 }
 
 .badge-level-card--trusted.is-current {
-  outline-color: var(--badge-trusted);
-  box-shadow: 7px 7px 0 #1a1a1a;
+  box-shadow: 6px 6px 0 var(--badge-trusted);
 }
 
 .badge-level-card--top {
@@ -4869,8 +4870,7 @@ html { scroll-behavior: smooth; }
 }
 
 .badge-level-card--top.is-current {
-  outline-color: var(--badge-top);
-  box-shadow: 7px 7px 0 #1a1a1a;
+  box-shadow: 6px 6px 0 var(--badge-top);
 }
 
 .badge-level-card .flex-1 > p {
@@ -4992,40 +4992,26 @@ html { scroll-behavior: smooth; }
   color: var(--badge-top);
 }
 
-/* ── Profile page ── */
+/* ── Profile page — color pop on hover only (bottom-right shadow) ── */
 .profile-section {
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-.profile-section--hero {
-  border-top: 5px solid var(--green-neon);
-}
-
-.profile-section--hero:hover {
+.profile-section:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 var(--green-neon);
 }
 
-.profile-section--basic {
-  border-left: 6px solid var(--green-neon);
-}
-
+.profile-section--hero:hover,
 .profile-section--basic:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 var(--green-neon);
-}
-
-.profile-section--basic .input:focus {
-  box-shadow: 4px 4px 0 var(--green-neon);
-}
-
-.profile-section--privacy {
-  border-left: 6px solid var(--badge-trusted);
+  box-shadow: 6px 6px 0 var(--green-neon);
 }
 
 .profile-section--privacy:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 var(--badge-trusted);
+  box-shadow: 6px 6px 0 var(--badge-trusted);
+}
+
+.profile-section--social:hover {
+  box-shadow: 6px 6px 0 var(--badge-top);
 }
 
 .profile-section--privacy .form-privacy-toggle:hover {
@@ -5041,36 +5027,14 @@ html { scroll-behavior: smooth; }
   color: var(--badge-trusted);
 }
 
-.profile-section--social {
-  border-left: 6px solid var(--badge-top);
-}
-
-.profile-section--social:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 var(--badge-top);
-}
-
-.profile-section--social .input:focus {
-  box-shadow: 4px 4px 0 var(--badge-top);
-}
-
 .profile-section-title {
   margin: 0 0 0.75rem;
-  padding: 0 0 0.5rem 0.65rem;
+  padding: 0 0 0.5rem;
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-size: 1rem;
   color: var(--text);
-  border-left: 4px solid var(--green-neon);
   border-bottom: 3px solid #1a1a1a;
-}
-
-.profile-section--privacy .profile-section-title {
-  border-left-color: var(--badge-trusted);
-}
-
-.profile-section--social .profile-section-title {
-  border-left-color: var(--badge-top);
 }
 
 .profile-alert {
