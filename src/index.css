@@ -902,9 +902,10 @@ html { scroll-behavior: smooth; }
 
   /* ── Auth pages ── */
   .auth-aside {
-    background: var(--green-auth-panel);
-    color: var(--text);
+    background: var(--green-neon);
+    color: #1a1a1a;
     border-right: 3px solid #1a1a1a;
+    font-weight: 600;       
   }
 
   .auth-aside-brand {
@@ -4097,14 +4098,14 @@ html { scroll-behavior: smooth; }
 
 .avatar--initials {
   border-radius: 50%;
-  background: #e0e5d4;
+  background: var(--green-neon);
   color: var(--text);
   font-weight: 700;
   font-family: 'Space Grotesk', sans-serif;
   line-height: 1;
   padding: 0;
   overflow: hidden;
-  aspect-ratio: 1;
+  aspect-ratio: 1;Z
 }
 
 .avatar--initials .avatar__initial {
