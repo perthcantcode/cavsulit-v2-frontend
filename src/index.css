@@ -13,7 +13,7 @@
 
   --green-neon:   #3fff00;
   --green-forest: #3ca305;
-  --green-auth-panel: #b8ff4d; /* neon-adjacent — auth sidebar, black text stays readable */
+  --green-auth-panel: #3fff00; /* neon-adjacent — auth sidebar, black text stays readable */
   --green-auth-accent: var(--green-neon); /* matches site buttons */
   --yellow:       #ffe600;
   --highlighter:  #ccff00;
@@ -928,17 +928,19 @@ html { scroll-behavior: smooth; }
   .auth-aside-quote {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 1.875rem;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.2;
     margin-bottom: 1rem;
-    color: var(--text);
+    color: #1a1a1a;
+    opacity: 1;
   }
 
   .auth-aside-desc {
     font-size: 0.875rem;
+    font-weight: 600;
     line-height: 1.6;
-    color: var(--text);
-    opacity: 0.88;
+    color: #1a1a1a;
+    opacity: 1;
     max-width: 20rem;
   }
 
