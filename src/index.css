@@ -5683,34 +5683,41 @@ html { scroll-behavior: smooth; }
   color: var(--text-muted);
 }
 
-.msg-preorder-card {
-  padding: 0.75rem 0.9rem;
-  background: rgba(63, 255, 0, 0.08);
-  border: 2px solid var(--green-neon);
-  border-radius: 10px;
+/* Pre-order chat bubble — yellow neo-brut (not glowing green card) */
+.msg-bubble--preorder {
+  background: var(--yellow);
+  color: var(--text);
+  border: 2px solid #1a1a1a;
   box-shadow: 3px 3px 0 #1a1a1a;
-  min-width: 14rem;
+  border-radius: 18px 18px 18px 4px;
+  min-width: 12rem;
+  max-width: 20rem;
 }
 
-.msg-preorder-card--mine {
-  border-color: #1a1a1a;
+.msg-bubble--preorder-mine {
+  border-radius: 18px 18px 4px 18px;
 }
 
-.msg-preorder-card-head {
+.msg-preorder-tag {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.8125rem;
-  color: var(--text);
+  gap: 0.35rem;
+  margin: 0 0 0.4rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.msg-preorder-card-list {
-  margin: 0;
-  padding-left: 1rem;
-  font-size: 0.8125rem;
+.msg-preorder-line {
+  margin: 0.2rem 0 0;
+  font-size: 0.875rem;
   line-height: 1.45;
-  color: var(--text-muted);
+}
+
+.msg-preorder-line strong {
+  font-weight: 700;
 }
 
 .messages-preorder-panel {

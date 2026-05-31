@@ -27,6 +27,53 @@ export const categoryColor = (cat) => {
 
 export const fmt = (n) => new Intl.NumberFormat('en-PH').format(n);
 
+/** datetime-local / ISO → "5/11/2026 · 12:32 PM" */
+export function formatPickupDateTime(value) {
+  if (value == null || value === '') return 'TBD';
+  const raw = String(value).trim();
+  if (raw.toUpperCase() === 'TBD') return 'TBD';
+
+  const local = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (local) {
+    const [, y, mo, d, h, mi] = local;
+    const dt = new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi));
+    if (!Number.isNaN(dt.getTime())) {
+      const datePart = `${Number(mo)}/${Number(d)}/${y}`;
+      const timePart = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return `${datePart} · ${timePart}`;
+    }
+  }
+
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime()) && /[-T:]/.test(raw)) {
+    const datePart = `${parsed.getMonth() + 1}/${parsed.getDate()}/${parsed.getFullYear()}`;
+    const timePart = parsed.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return `${datePart} · ${timePart}`;
+  }
+
+  return raw;
+}
+
+export function parsePreorderMessage(text) {
+  if (typeof text !== 'string' || !text.startsWith('📋 PRE-ORDER REQUEST')) return null;
+  const data = { items: '', pickup: 'TBD', location: 'TBD' };
+  for (const line of text.split('\n').filter(Boolean).slice(1)) {
+    if (line.startsWith('Items:')) data.items = line.replace(/^Items:\s*/, '');
+    else if (line.startsWith('Pickup:')) {
+      data.pickup = formatPickupDateTime(line.replace(/^Pickup:\s*/, ''));
+    } else if (line.startsWith('Location:')) data.location = line.replace(/^Location:\s*/, '');
+  }
+  return data;
+}
+
+/** Short preview for conversation list */
+export function formatPreorderPreview(text) {
+  const data = parsePreorderMessage(text);
+  if (!data) return text;
+  const bit = data.items ? data.items.slice(0, 40) : 'items';
+  return `Pre-order · ${bit}${data.items?.length > 40 ? '…' : ''}`;
+}
+
 /** Main vs satellite campus label for shop detail sidebar chip */
 export function formatCampusLabel(shop) {
   if (!shop) return 'CvSU Main';

@@ -6,6 +6,11 @@ import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { EmptyStateIcon } from '../components/EmptyStateIcon';
 import { Avatar } from '../components/Avatar';
+import {
+  formatPickupDateTime,
+  formatPreorderPreview,
+  parsePreorderMessage,
+} from '../utils/helpers';
 
 const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
 
@@ -24,22 +29,25 @@ function isPreorderMessage(text) {
   return typeof text === 'string' && text.startsWith('📋 PRE-ORDER REQUEST');
 }
 
-function PreorderCard({ text, isMe }) {
-  const lines = text.split('\n').filter(Boolean);
-  const title = lines[0]?.replace('📋 ', '') || 'Pre-Order Request';
-  const details = lines.slice(1);
+function PreorderBubble({ text, isMe }) {
+  const data = parsePreorderMessage(text);
+  if (!data) return null;
 
   return (
-    <div className={`msg-preorder-card${isMe ? ' msg-preorder-card--mine' : ''}`}>
-      <div className="msg-preorder-card-head">
-        <ClipboardList size={16} />
-        <strong>{title}</strong>
-      </div>
-      <ul className="msg-preorder-card-list">
-        {details.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
-      </ul>
+    <div className={`msg-bubble msg-bubble--preorder${isMe ? ' msg-bubble--preorder-mine' : ''}`}>
+      <p className="msg-preorder-tag">
+        <ClipboardList size={14} strokeWidth={2.5} aria-hidden />
+        Pre-order
+      </p>
+      <p className="msg-preorder-line">
+        <strong>Items:</strong> {data.items || '—'}
+      </p>
+      <p className="msg-preorder-line">
+        <strong>Pickup:</strong> {data.pickup}
+      </p>
+      <p className="msg-preorder-line">
+        <strong>Location:</strong> {data.location}
+      </p>
     </div>
   );
 }
@@ -48,7 +56,7 @@ function MessageBubble({ message, isMe }) {
   if (isPreorderMessage(message.text)) {
     return (
       <div className={`msg-row${isMe ? ' msg-row--mine' : ' msg-row--theirs'}`}>
-        <PreorderCard text={message.text} isMe={isMe} />
+        <PreorderBubble text={message.text} isMe={isMe} />
         <time className="msg-time">{formatTime(message.createdAt)}</time>
       </div>
     );
@@ -209,7 +217,7 @@ export function Messages() {
         });
         if (data.message) appendMessage(data.message);
       } else {
-        const msg = `📋 PRE-ORDER REQUEST\nItems: ${preItem.trim()}\nPickup: ${preTime || 'TBD'}\nLocation: ${preLoc || 'TBD'}`;
+        const msg = `📋 PRE-ORDER REQUEST\nItems: ${preItem.trim()}\nPickup: ${formatPickupDateTime(preTime)}\nLocation: ${preLoc?.trim() || 'TBD'}`;
         const { data } = await api.post('/messages', {
           receiverId: activePartner.id,
           text: msg,
@@ -279,7 +287,11 @@ export function Messages() {
                       <span className="messages-convo-name">{c.partner?.fullName}</span>
                       <time>{formatTime(c.lastAt)}</time>
                     </div>
-                    <p className="messages-convo-preview">{c.lastMessage}</p>
+                    <p className="messages-convo-preview">
+                      {isPreorderMessage(c.lastMessage)
+                        ? formatPreorderPreview(c.lastMessage)
+                        : c.lastMessage}
+                    </p>
                   </div>
                 </button>
               );
@@ -349,12 +361,15 @@ export function Messages() {
                   className="input"
                 />
                 <div className="messages-preorder-grid">
-                  <input
-                    type="datetime-local"
-                    value={preTime}
-                    onChange={(e) => setPreTime(e.target.value)}
-                    className="input"
-                  />
+                  <div className="form-field m-0">
+                    <label className="form-label text-xs">Pickup date &amp; time</label>
+                    <input
+                      type="datetime-local"
+                      value={preTime}
+                      onChange={(e) => setPreTime(e.target.value)}
+                      className="input"
+                    />
+                  </div>
                   <input
                     value={preLoc}
                     onChange={(e) => setPreLoc(e.target.value)}
