@@ -9,8 +9,11 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import api from '../utils/api';
+import { AuthBootLoader } from '../components/ui/AuthBootLoader';
 
 const AuthContext = createContext(null);
+
+const AUTH_INIT_TIMEOUT_MS = 10000;
 
 function isLocalApi() {
   const base = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -65,6 +68,17 @@ export function AuthProvider({ children }) {
   const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
+    let settled = false;
+
+    const finishLoading = () => {
+      if (settled) return;
+      settled = true;
+      setLoading(false);
+    };
+
+    // If Firebase hangs (offline / blocked), don't leave a permanent white screen
+    const timeout = setTimeout(finishLoading, AUTH_INIT_TIMEOUT_MS);
+
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setConnecting(true);
@@ -80,9 +94,14 @@ export function AuthProvider({ children }) {
         setUser(null);
         setConnecting(false);
       }
-      setLoading(false);
+      clearTimeout(timeout);
+      finishLoading();
     });
-    return unsub;
+
+    return () => {
+      clearTimeout(timeout);
+      unsub();
+    };
   }, []);
 
   const login = async (email, password) => {
@@ -126,7 +145,7 @@ export function AuthProvider({ children }) {
 
   const updateUser = (u) => setUser(u);
 
-  if (loading) return null;
+  if (loading) return <AuthBootLoader />;
 
   return (
     <AuthContext.Provider value={{

@@ -13,7 +13,11 @@ export function Wishlist() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     api.get('/wishlist').then(({ data }) => setItems(data)).finally(() => setLoading(false));
   }, [user]);
 

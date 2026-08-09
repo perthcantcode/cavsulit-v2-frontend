@@ -25,21 +25,33 @@ export function LoadingScreen({ onDone }) {
     const minDelay = new Promise((r) => setTimeout(r, local ? 400 : 700));
     const ping = local
       ? Promise.resolve()
-      : api.get('/ping', { timeout: 15000 }).catch(() => null);
-    const cap = new Promise((r) => setTimeout(r, local ? 600 : 15000));
+      : api.get('/ping', { timeout: 12000 }).catch(() => null);
+    const cap = new Promise((r) => setTimeout(r, local ? 800 : 12000));
 
-    Promise.race([Promise.all([ping, minDelay]), cap]).finally(() => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
       clearTimeout(wakeTimer);
-      sessionStorage.setItem(SESSION_KEY, '1');
+      try {
+        sessionStorage.setItem(SESSION_KEY, '1');
+      } catch {
+        /* private browsing */
+      }
       setFadeOut(true);
       setTimeout(() => {
         setVisible(false);
         onDone?.();
       }, 300);
-    });
+    };
 
-    return () => clearTimeout(wakeTimer);
-  }, [onDone]);
+    Promise.race([Promise.all([ping, minDelay]), cap]).finally(finish);
+
+    return () => {
+      clearTimeout(wakeTimer);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
+  }, []);
 
   if (!visible) return null;
 
