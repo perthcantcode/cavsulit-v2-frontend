@@ -206,6 +206,9 @@ export function Messages() {
         socketRef.current?.emit('send_message', data);
       }
       loadConversations();
+    } catch (err) {
+      setText(body); // give the text back so nothing is lost
+      alert(err.response?.data?.message || 'Message not sent. Check your connection and try again.');
     } finally {
       setSending(false);
     }
