@@ -6,6 +6,7 @@ import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { EmptyStateIcon } from '../components/EmptyStateIcon';
 import { Avatar } from '../components/Avatar';
+import { auth } from '../lib/firebase';
 import {
   formatPickupDateTime,
   formatPreorderPreview,
@@ -137,9 +138,15 @@ export function Messages() {
 
     loadConversations();
 
-    const socket = io(SOCKET_URL, { transports: ['websocket', 'polling'], reconnection: true });
-    socketRef.current = socket;
-    socket.emit('join', user.id);
+  const socket = io(SOCKET_URL, {
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    auth: async (cb) => {
+    const token = await auth.currentUser?.getIdToken();
+      cb({ token });
+    },
+  });
+  socketRef.current = socket;
 
     const onReceive = (data) => {
       if (!data?.id || data.senderId === userIdRef.current) return;
