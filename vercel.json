@@ -12,7 +12,7 @@
         { "key": "Access-Control-Allow-Origin", "value": "https://cavsulit.vercel.app" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.onrender.com; connect-src 'self' https://cavsulit-v2-api.onrender.com wss://cavsulit-v2-api.onrender.com https://*.googleapis.com https://*.firebaseio.com; frame-src https://*.firebaseapp.com https://accounts.google.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.onrender.com; connect-src 'self' https://cavsulit-v2-api.onrender.com wss://cavsulit-v2-api.onrender.com https://*.googleapis.com https://*.firebaseio.com; frame-src https://*.firebaseapp.com https://accounts.google.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
         }
       ]
     }
